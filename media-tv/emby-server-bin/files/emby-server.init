@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+description="Emby Media Server"
+pidfile=${pidfile:-"/run/${RC_SVCNAME}.pid"}
+user=${user:-emby}
+group=${group:-emby}
+
+log_file="/var/log/emby-server_start.log"
+
+command="/opt/emby-server/EmbyServer"
+command_args="${command_args:--programdata ${PROGRAMDATA} -ffmpeg /usr/bin/ffmpeg -ffprobe /usr/bin/ffprobe}"
+command_background="true"
+start_stop_daemon_args="--user ${user} --group ${group} --stdout ${log_file} --stderr ${log_file}"
+
+depend() {
+        after net
+}
+

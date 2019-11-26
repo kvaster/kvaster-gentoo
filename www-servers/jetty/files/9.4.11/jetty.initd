@@ -1,0 +1,81 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License, v2 or later
+# $Header: $
+
+extra_commands="safestop status check"
+
+[ -z "${JAVA_OPTIONS}" ] && JAVA_OPTIONS=""
+[ -z "${JETTY_LOGS}" ] && JETTY_LOGS="/var/log/${RC_SVCNAME}"
+[ -z "${JETTY_CONF}" ] && JETTY_CONF="/etc/${RC_SVCNAME}/jetty.conf"
+[ -z "${JETTY_BASE}" ] && JETTY_BASE="/var/lib/${RC_SVCNAME}"
+
+JETTY_RUN=/var/run/
+JETTY_PID=${JETTY_RUN}/${RC_SVCNAME}.pid
+
+JETTY_START_LOG="${JETTY_LOGS}/start.log"
+
+# Configure jmx
+[ -z "${JETTY_JMX_HOST}" ] || JAVA_OPTIONS+=("-Djetty.jmxrmihost=${JETTY_JMX_HOST}")
+[ -z "${JETTY_JMX_PORT}" ] || JAVA_OPTIONS+=("-Djetty.jmxrmiport=${JETTY_JMX_PORT}")
+[ -z "${JETTY_RMI_HOST}" ] || JAVA_OPTIONS+=("-Djava.rmi.server.hostname=${JETTY_RMI_HOST}")
+
+[ -z "${JETTY_JMX_CREDENTIALS}" ] && JETTY_JMX_CREDENTIALS="/etc/${RC_SVCNAME}"
+JAVA_OPTIONS+=("-Djetty.jmx.credentials=${JETTY_JMX_CREDENTIALS}")
+
+# Configure memory
+free_memory=`free -m | awk '/Mem:/ {print $2}'`
+jetty_memory=`expr $free_memory '*' 87 '/' 100`
+cpu_cores=`egrep -c 'processor([[:space:]]+):.*' /proc/cpuinfo`
+jetty_ng_memory=`expr $cpu_cores '*' 150`
+jetty_ng_memory_max=`expr $jetty_memory '/' 10`
+if [ "$jetty_ng_memory" -gt "$jetty_ng_memory_max" ]
+then
+  jetty_ng_memory=$jetty_ng_memory_max
+fi
+
+[ -z "${JETTY_MIN_MEMORY}" ] && JETTY_MIN_MEMORY="${jetty_memory}m"
+[ -z "${JETTY_MAX_MEMORY}" ] && JETTY_MAX_MEMORY="${jetty_memory}m"
+[ -z "${JETTY_NEW_MEMORY}" ] && JETTY_NEW_MEMORY="${jetty_ng_memory}m"
+JAVA_OPTIONS+=("-Xmn${JETTY_NEW_MEMORY} -Xmx${JETTY_MAX_MEMORY} -Xms${JETTY_MIN_MEMORY}")
+
+# legacy logs
+JAVA_OPTIONS+=("-Djetty.logs=${JETTY_LOGS}")
+
+depend() {
+	need net
+	use dns logger postgresql mysql 
+}
+
+start()	{
+	ebegin "Starting Jetty"
+	ulimit -n 100000
+	ulimit -l unlimited
+	. ${JETTY_HOME}/bin/jetty.sh start
+	eend $?
+}
+
+stop ()	{
+	ebegin "Stopping Jetty"
+	. ${JETTY_HOME}/bin/jetty.sh stop
+	eend $?
+}
+
+safestop() {
+	ebegin "Stopping Jetty by safe way"
+	kill -HUP `cat ${JETTY_PID}`
+	eend $?
+}
+
+check() {
+	ebegin "Jetty check"
+	. ${JETTY_HOME}/bin/jetty.sh check
+	eend $?
+}
+
+status() {
+	ebegin "Jetty status"
+	. ${JETTY_HOME}/bin/jetty.sh status
+	eend $?
+}
+

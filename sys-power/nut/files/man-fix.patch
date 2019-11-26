@@ -1,0 +1,32 @@
+diff --git a/docs/man/Makefile.am b/docs/man/Makefile.am
+index 0e1f59cc..bc120b07 100644
+--- a/docs/man/Makefile.am
++++ b/docs/man/Makefile.am
+@@ -217,27 +217,6 @@ MAN3_DEV_PAGES = \
+ 	libnutclient_tcp.3 \
+ 	libnutclient_variables.3 \
+ 	$(LIBNUTCLIENT_MISC_DEPS) \
+-	nutclient_destroy.3 \
+-	nutclient_execute_device_command.3 \
+-	nutclient_get_device_command_description.3 \
+-	nutclient_get_device_commands.3 \
+-	nutclient_get_device_description.3 \
+-	nutclient_get_device_rw_variables.3 \
+-	nutclient_get_devices.3 \
+-	nutclient_get_device_variable_description.3 \
+-	nutclient_get_device_variables.3 \
+-	nutclient_get_device_variable_values.3 \
+-	nutclient_has_device.3 \
+-	nutclient_has_device_command.3 \
+-	nutclient_has_device_variable.3 \
+-	nutclient_set_device_variable_value.3 \
+-	nutclient_set_device_variable_values.3 \
+-	nutclient_tcp_create_client.3 \
+-	nutclient_tcp_disconnect.3 \
+-	nutclient_tcp_get_timeout.3 \
+-	nutclient_tcp_is_connected.3 \
+-	nutclient_tcp_reconnect.3 \
+-	nutclient_tcp_set_timeout.3 \
+ 	nutscan.3 \
+ 	nutscan_scan_snmp.3 \
+ 	nutscan_scan_usb.3 \

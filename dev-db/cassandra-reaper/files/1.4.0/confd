@@ -1,0 +1,21 @@
+# Settings for java application
+
+# Wait for shutdown and kill service in case of timeout
+# SIGHUP skipped because cassandra-reaper don't have SIGHUP handler.
+retry="SIGTERM/15/SIGKILL/15"
+# or wait for shutdown forever
+# retry="SIGHUP/5/SIGHUP/15/SIGHUP/30/SIGHUP/180"
+
+# Java memory settings.
+# You may use usual values like "32m", "8G" or you may use "auto".
+# In auto mode java app will try to use all available memory.
+#java_mem_min="1G"
+#java_mem_max="2G"
+#java_mem_new="256m"
+
+# Application default folders
+java_opts="${java_opts} -Ddir.tmp=/tmp/${RC_SVCNAME} -Ddir.log=/var/log/${RC_SVCNAME} -Ddir.data=/var/lib/${RC_SVCNAME}"
+
+# Application specific java options
+#java_opts="${java_opts} -Dhttpserver.host=0.0.0.0"
+

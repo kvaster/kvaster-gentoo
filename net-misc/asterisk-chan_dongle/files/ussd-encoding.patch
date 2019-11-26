@@ -1,0 +1,45 @@
+diff --git a/at_response.c b/at_response.c
+index 8f77f23..02714f8 100644
+--- a/at_response.c
++++ b/at_response.c
+@@ -1377,11 +1377,37 @@ static int at_response_cusd (struct pvt * pvt, char * str, size_t len)
+ 	typebuf[0] = type + '0';
+ 	typebuf[1] = 0;
+ 
+-	// FIXME: strictly check USSD encoding and detect encoding
+-	if ((dcs == 0 || dcs == 15) && !pvt->cusd_use_ucs2_decoding)
++	ussd_encoding = STR_ENCODING_7BIT_HEX;
++	if ((dcs & 0xf0) == 0xf0)
++	{
+ 		ussd_encoding = STR_ENCODING_7BIT_HEX;
++	}
++	else if ((dcs & 0x80) == 0)
++	{
++		switch (dcs & 0x0c)
++		{
++		case 0x00:
++		case 0x04:
++			ussd_encoding = STR_ENCODING_7BIT_HEX;
++			break;
++		case 0x08:
++			ussd_encoding = STR_ENCODING_UCS2_HEX;
++			break;
++		}
++	}
+ 	else
+-		ussd_encoding = STR_ENCODING_UCS2_HEX;
++	{
++		switch (dcs & 0xf0)
++		{
++		case 0xc0:
++		case 0xd0:
++			ussd_encoding = STR_ENCODING_7BIT_HEX;
++			break;
++		case 0xe0:
++			ussd_encoding = STR_ENCODING_UCS2_HEX;
++			break;
++		}
++	}
+ 	res = str_recode (RECODE_DECODE, ussd_encoding, cusd, strlen (cusd), cusd_utf8_str, sizeof (cusd_utf8_str));
+ 	if(res >= 0)
+ 	{

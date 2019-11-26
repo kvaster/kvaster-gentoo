@@ -1,0 +1,23 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="${name:-Grafana}"
+command="/usr/bin/grafana-server"
+command_args="${GRAFANA_OPTS}"
+command_user="${command_user:-grafana:grafana}"
+command_background=true
+directory="/usr/share/grafana"
+pidfile="/run/${RC_SVCNAME}.pid"
+required_files="${GRAFANA_CONFIG}"
+retry="${retry:-TERM/20/KILL/5}"
+start_stop_daemon_args="${SSD_OPTS}"
+
+depend() {
+	need net
+}
+
+start_pre() {
+	checkpath -d -m 0750 -o "${command_user}" \
+		"${GRAFANA_DATADIR}" "${GRAFANA_LOGDIR}"
+}

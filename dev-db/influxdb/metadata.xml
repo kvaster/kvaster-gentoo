@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>gentoo@chaoslab.org</email>
+		<name>Ian Moone</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">influxdata/influxdb</remote-id>
+		<bugs-to>https://github.com/influxdata/influxdb/issues</bugs-to>
+		<doc>https://docs.influxdata.com/influxdb/</doc>
+	</upstream>
+	<longdescription lang="en">
+		InfluxDB is a time series database built from the ground
+		up to handle high write and query loads. It is the second
+		piece of the TICK stack. InfluxDB is meant to be used as
+		a backing store for any use case involving large amounts
+		of timestamped data, including DevOps monitoring, application
+		metrics, IoT sensor data, and real-time analytics.
+	</longdescription>
+	<use>
+		<flag name="man">Build and install man pages</flag>
+</use>
+</pkgmetadata>

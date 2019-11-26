@@ -1,0 +1,12 @@
+diff --git a/src/chunkserver/iostat.h b/src/chunkserver/iostat.h
+index e1a50e97..efaa50f0 100644
+--- a/src/chunkserver/iostat.h
++++ b/src/chunkserver/iostat.h
+@@ -45,6 +45,7 @@ public:
+ #include <cstdio>
+ #include <ctime>
+ #include <sys/vfs.h>
++#include <sys/sysmacros.h>
+ 
+ class IoStat {
+ protected:

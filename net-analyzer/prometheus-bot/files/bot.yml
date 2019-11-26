@@ -1,0 +1,5 @@
+telegram_token: sometoken
+#template_path: "/etc/prometheus-bot/bot.tmpl"
+time_zone: "Europe/Minsk"
+split_token: "|"
+time_outdata: "2006-01-02 15:04:05"

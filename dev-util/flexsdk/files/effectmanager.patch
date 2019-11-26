@@ -1,0 +1,15 @@
+diff -r 39f5328725e0 frameworks/projects/framework/src/mx/effects/EffectManager.as
+--- a/frameworks/projects/framework/src/mx/effects/EffectManager.as	Sat Oct 01 22:27:50 2011 +0300
++++ b/frameworks/projects/framework/src/mx/effects/EffectManager.as	Sat Oct 01 22:28:26 2011 +0300
+@@ -735,7 +735,10 @@
+ 	{
+ 		suspendEventHandling();
+ 		// Add the child back to the parent so the effect can play upon it
+-		parent.addChildAt(target, index);
++		if(index <= parent.numChildren)
++			parent.addChildAt(target, index);
++		else
++			parent.addChild(target);
+ 		resumeEventHandling();
+ 		// Use target because the player assigns the Stage to the currentTarget when we leave the scope of the event handler function
+ 		createAndPlayEffect(eventObj, target); 

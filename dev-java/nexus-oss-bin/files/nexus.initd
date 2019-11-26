@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+# Copyright 2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="nexus daemon"
+description="Sonatype Nexus Repository"
+command_user=${command_user:-nexus}
+
+if [ ! -z "${JAVA_HOME}" ]; then
+	export INSTALL4J_JAVA_HOME_OVERRIDE="${JAVA_HOME}"
+fi
+
+depend() {
+	need net
+}
+
+start() {
+	ulimit -l unlimited
+	ulimit -n 1000000
+	sudo -Eu ${command_user} /opt/nexus-oss/bin/nexus start
+}
+
+stop() {
+	sudo -Eu ${command_user} /opt/nexus-oss/bin/nexus stop
+}
+

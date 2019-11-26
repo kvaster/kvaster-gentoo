@@ -1,0 +1,20 @@
+# JVM Runtime
+# Using the default setting, it will determine your JVM from the system-vm
+# set using java-config.
+# See java-config(1) manual page for assistance in determining this value.
+#
+# You can override this value with whatever path you wish.  
+# Example: JAVA_HOME="/opt/sun-jdk-1.4.1.01"
+
+# Set's JAVA_HOME to current selected JRE
+JAVA_HOME="$(java-config -O)"
+
+# (Optional) Java runtime options used when the "start", "stop", or "run"
+# commands are executed.
+JAVA_OPTIONS="-Dfile.encoding=UTF-8"
+
+CASSANDRA_HOME="/opt/cassandra"
+CASSANDRA_CONF="/etc/cassandra"
+CASSANDRA_USER="cassandra"
+
+FD_LIMIT=1000000

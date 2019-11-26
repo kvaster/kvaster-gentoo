@@ -1,0 +1,14 @@
+diff -r b4e503a3477e main.go
+--- a/main.go	Mon Jul 03 22:04:24 2017 +0300
++++ b/main.go	Mon Jul 03 22:41:27 2017 +0300
+@@ -269,9 +269,7 @@
+ 		panic(nil)
+ 	}
+ 
+-	IN_layout := "2006-01-02T15:04:05.000-07:00"
+-
+-	t, err := time.Parse(IN_layout, toformat)
++	t, err := time.Parse(time.RFC3339Nano, toformat)
+ 
+ 	if err != nil {
+ 		fmt.Println(err)

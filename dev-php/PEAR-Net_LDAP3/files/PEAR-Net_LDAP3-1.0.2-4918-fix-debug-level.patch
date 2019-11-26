@@ -1,0 +1,13 @@
+--- lib/Net/LDAP3.php.orig	2015-03-26 17:07:44.738295136 +0100
++++ lib/Net/LDAP3.php	2015-03-26 17:07:56.428295298 +0100
+@@ -1920,9 +1920,7 @@
+     private function config_set_debug($value)
+     {
+         $this->config['debug'] = (bool) $value;
+-        if ((int)($value) > 0) {
+-            ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, (int)($value));
+-        }
++        ldap_set_option(null, LDAP_OPT_DEBUG_LEVEL, (int)($value));
+     }
+ 
+     /**

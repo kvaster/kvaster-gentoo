@@ -1,0 +1,34 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+description="jmx_exporter application: ${RC_SVCNAME}"
+
+pidfile=${pidfile:-"/run/${RC_SVCNAME}.pid"}
+command_user=${user:-${RC_SVCNAME}}
+
+logfile=${logfile:-/var/log/${RC_SVCNAME}/start.log}
+output_log=${output_log:-${logfile}}
+error_log=${error_log:-${logfile}}
+
+directory=${directory:-/opt/${RC_SVCNAME}}
+config_file=${config_file:-"${directory}/config.yml"}
+
+java_opts_file=${java_opts_file:-${directory}/jvm.options}
+if [ ! -z "${java_opts_file}" ] && [ -e "${java_opts_file}" ]; then
+  for opt in `grep "^-" ${java_opts_file}`
+  do
+    java_opts="${java_opts} ${opt}"
+  done
+fi
+
+java_opts="${java_opts} ${java_mem_max:+-Xmx}${java_mem_max} ${java_mem_min:+-Xms}${java_mem_min} ${java_mem_new:+-Xmn}${java_mem_new}"
+
+command=${command:-java}
+command_args=${command_args:-${java_opts} -jar /opt/jmx_exporter/jmx_exporter.jar ${host_port} ${config_file}}
+command_background="true"
+
+depend() {
+  after net
+}
+

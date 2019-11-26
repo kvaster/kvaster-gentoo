@@ -1,0 +1,25 @@
+# Some options for running cassandra database.
+# Please note that most java related options are defined in CONF/jvm.options file
+# and server config is defined in CONF/cassandra.yml file
+
+# Java used to start cassandra, by default will use default java determined by java-config
+#JAVA="$(java-config -J)"
+
+# Cassandra daemon defaults
+#CASSANDRA_HOME="/opt/cassandra"
+#CASSANDRA_CONF="/etc/cassandra"
+#CASSANDRA_USER="cassandra"
+#CASSANDRA_STORAGE="/var/lib/cassandra"
+#CASSANDRA_LOGS="/var/log/cassandra"
+#CASSANDRA_PID="/var/run/cassandra.pid"
+
+# Limit for file descriptors
+#FD_LIMIT=1000000
+
+# Extra classpath for cassandra daemon
+#EXTRA_CLASSPATH=""
+
+# Limit cassandra memory
+#MAX_HEAP_SIZE="256M"
+#HEAP_NEWSIZE="48M"
+

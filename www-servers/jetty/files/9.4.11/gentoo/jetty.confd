@@ -1,0 +1,46 @@
+# JVM Runtime
+# Using the default setting, it will determine your JVM from the system-vm
+# set using java-config.
+# See java-config(1) manual page for assistance in determining this value.
+#
+# You can override this value with whatever path you wish.  
+# Example: JAVA_HOME="/opt/sun-jdk-1.4.1.01"
+
+# Set's JAVA_HOME to current selected JRE
+JAVA_HOME="$(java-config -O)"
+
+# (Optional) Java runtime options used when the "start", "stop", or "run"
+# commands are executed.
+JAVA_OPTIONS="-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.Slf4jLog -Djava.awt.headless=true -Dfile.encoding=UTF-8 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=5 -XX:CMSInitiatingOccupancyFraction=70 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseCondCardMark -XX:+UseNUMA -XX:+UseTLAB -XX:+CMSParallelInitialMarkEnabled -XX:+CMSEdenChunksRecordAlways"
+
+# Jetty installation
+JETTY_HOME="/opt/jetty"
+
+# Logs
+# defaults to /var/log/{servicename}
+#JETTY_LOGS="/var/log/jetty"
+
+# Jetty's User
+JETTY_USER="@INSTANCE_USER@"
+
+# Jetty memory settings.
+# By default jetty will use all available memory.
+#JETTY_MIN_MEMORY=1024m
+#JETTY_MAX_MEMORY=1024m
+#JETTY_NEW_MEMORY=128m
+
+# Jetty is quite skilled where to look for configuration
+# setup files. If JETTY_CONF is not set it defaults to
+# /etc/jetty.conf $JETTY_HOME/etc/jetty.conf (see jetty.sh)
+# defaults to /etc/${servicename}/jetty.conf
+#JETTY_CONF="/etc/jetty/jetty.conf"
+
+# Additional CLASSPATH for Jetty to use, plus any others you need.
+#CLASSPATH="${CLASSPATH}:/YOUR_SPECIFIC_LIBDIR"
+
+# JMX configuration
+#JETTY_JMX_HOST=localhost
+#JETTY_JMX_PORT=@JETTY_JMX_PORT@
+# The value of this property represents the host name string that should be associated with remote stubs for locally created remote objects, 
+# in order to allow clients to invoke methods on the remote object. 
+#JETTY_RMI_HOST=@JETTY_RMI_HOST@
