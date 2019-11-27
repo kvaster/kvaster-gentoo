@@ -2,13 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 # This ebuild come from bangert overlay
-inherit eutils user
+inherit eutils user eapi7-ver
 
-MAGIC="20180605"
+MAGIC=$(ver_cut 4-)
+VER=$(ver_cut 1-3)
 
 DESCRIPTION="Jetty is an full-featured web and applicaction server implemented entirely in Java."
 HOMEPAGE="http://webtide.com"
-SRC_URI="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${PV}.v${MAGIC}/jetty-distribution-${PV}.v${MAGIC}.tar.gz"
+SRC_URI="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${VER}.v${MAGIC}/jetty-distribution-${VER}.v${MAGIC}.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="6"
 KEYWORDS="~amd64 ~x86"
@@ -16,10 +17,9 @@ IUSE=""
 DEPEND=">=virtual/jdk-1.8
 	app-arch/unzip
 	dev-java/java-config"
-RDEPEND=">=virtual/jdk-1.8
-	dev-java/jna"
+RDEPEND=">=virtual/jdk-1.8"
 
-S="${WORKDIR}"/jetty-distribution-${PV}.v${MAGIC}
+S="${WORKDIR}"/jetty-distribution-${VER}.v${MAGIC}
 
 JETTY_HOME="/opt/jetty"
 
@@ -30,10 +30,10 @@ pkg_setup() {
 
 src_compile() {
 	epatch "${FILESDIR}"/${PVR}/daemon.patch
-	
+
 	# create features file
 	mkdir gentoo
-	cp "${FILESDIR}"/${PVR}/features gentoo
+	cp "${FILESDIR}"/${VER}/features gentoo
 }
 
 src_install() {
@@ -43,19 +43,14 @@ src_install() {
 
 	insinto ${JETTY_HOME}
 	doins start.jar
-	doins -r lib
-	doins -r resources
-	doins -r modules
 	doins -r etc
 	doins -r gentoo
 	doins -r "${FILESDIR}"/${PVR}/gentoo
 	doins -r "${FILESDIR}"/${PVR}/etc
 	doins -r "${FILESDIR}"/${PVR}/lib
 	doins -r "${FILESDIR}"/${PVR}/modules
-	
-	fperms 0755 ${JETTY_HOME}/gentoo/jetty-instance-manager.bash
 
-	dosym /usr/share/jna/lib/jna.jar ${JETTY_HOME}/lib/kvaster-utils/jna.jar
+	fperms 0755 ${JETTY_HOME}/gentoo/jetty-instance-manager.bash
 
 	exeinto ${JETTY_HOME}/bin
 	doexe bin/jetty.sh
