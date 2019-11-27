@@ -37,7 +37,7 @@ src_compile() {
 }
 
 src_install() {
-	newinitd "${FILESDIR}"/${PVR}/jetty.initd template.jetty
+	newinitd "${FILESDIR}"/${VER}/jetty.initd template.jetty
 
 	dodir ${JETTY_HOME}
 
@@ -45,10 +45,8 @@ src_install() {
 	doins start.jar
 	doins -r etc
 	doins -r gentoo
-	doins -r "${FILESDIR}"/${PVR}/gentoo
-	doins -r "${FILESDIR}"/${PVR}/etc
-	doins -r "${FILESDIR}"/${PVR}/lib
-	doins -r "${FILESDIR}"/${PVR}/modules
+	doins -r "${FILESDIR}"/${VER}/gentoo
+	doins -r "${FILESDIR}"/${VER}/etc
 
 	fperms 0755 ${JETTY_HOME}/gentoo/jetty-instance-manager.bash
 
