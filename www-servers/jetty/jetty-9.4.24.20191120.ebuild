@@ -29,7 +29,7 @@ pkg_setup() {
 }
 
 src_compile() {
-	epatch "${FILESDIR}"/${PVR}/daemon.patch
+	epatch "${FILESDIR}"/${VER}/daemon.patch
 
 	# create features file
 	mkdir gentoo
