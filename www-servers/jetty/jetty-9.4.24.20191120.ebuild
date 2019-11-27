@@ -43,6 +43,9 @@ src_install() {
 
 	insinto ${JETTY_HOME}
 	doins start.jar
+	doins -r resources
+	doins -r lib
+	doins -r modules
 	doins -r etc
 	doins -r gentoo
 	doins -r "${FILESDIR}"/${VER}/gentoo
