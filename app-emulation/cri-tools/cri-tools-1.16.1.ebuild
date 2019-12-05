@@ -28,6 +28,9 @@ src_compile() {
 src_install() {
 	dobin bin/*
 
+	insinto /etc
+	doins ${FILESDIR}/crictl.yaml
+
 	newbashcomp ${PN}.bash ${PN}
 	insinto /usr/share/zsh/site-functions
 	newins ${PN}.zsh _${PN}
