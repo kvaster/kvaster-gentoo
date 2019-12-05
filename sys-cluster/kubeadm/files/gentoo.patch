@@ -1,0 +1,13 @@
+diff --git a/cmd/kubeadm/app/util/initsystem/initsystem_unix.go b/cmd/kubeadm/app/util/initsystem/initsystem_unix.go
+index e3df10c8..72f3f918 100644
+--- a/cmd/kubeadm/app/util/initsystem/initsystem_unix.go
++++ b/cmd/kubeadm/app/util/initsystem/initsystem_unix.go
+@@ -66,7 +66,7 @@ func (openrc OpenRCInitSystem) ServiceIsEnabled(service string) bool {
+ func (openrc OpenRCInitSystem) ServiceIsActive(service string) bool {
+ 	args := []string{service, "status"}
+ 	outBytes, _ := exec.Command("rc-service", args...).Output()
+-	return !strings.Contains(string(outBytes), "stopped")
++	return !strings.Contains(string(outBytes), "stopped") && !strings.Contains(string(outBytes), "does not exist")
+ }
+ 
+ // EnableCommand return a string describing how to enable a service
