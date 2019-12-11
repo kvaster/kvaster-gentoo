@@ -1,7 +1,16 @@
 diff --git a/cmd/kubeadm/app/phases/upgrade/postupgrade.go b/cmd/kubeadm/app/phases/upgrade/postupgrade.go
-index ae9a0483..bceb503c 100644
+index ae9a0483..9a2dd960 100644
 --- a/cmd/kubeadm/app/phases/upgrade/postupgrade.go
 +++ b/cmd/kubeadm/app/phases/upgrade/postupgrade.go
+@@ -30,7 +30,7 @@ import (
+ 	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
+ 	kubeadmconstants "k8s.io/kubernetes/cmd/kubeadm/app/constants"
+ 	"k8s.io/kubernetes/cmd/kubeadm/app/phases/addons/dns"
+-	"k8s.io/kubernetes/cmd/kubeadm/app/phases/addons/proxy"
++	//"k8s.io/kubernetes/cmd/kubeadm/app/phases/addons/proxy"
+ 	"k8s.io/kubernetes/cmd/kubeadm/app/phases/bootstraptoken/clusterinfo"
+ 	nodebootstraptoken "k8s.io/kubernetes/cmd/kubeadm/app/phases/bootstraptoken/node"
+ 	kubeletphase "k8s.io/kubernetes/cmd/kubeadm/app/phases/kubelet"
 @@ -103,9 +103,9 @@ func PerformPostUpgradeTasks(client clientset.Interface, cfg *kubeadmapi.InitCon
  		errs = append(errs, err)
  	}
