@@ -1,0 +1,17 @@
+diff --git a/cmd/kubeadm/app/phases/upgrade/postupgrade.go b/cmd/kubeadm/app/phases/upgrade/postupgrade.go
+index ae9a0483..bceb503c 100644
+--- a/cmd/kubeadm/app/phases/upgrade/postupgrade.go
++++ b/cmd/kubeadm/app/phases/upgrade/postupgrade.go
+@@ -103,9 +103,9 @@ func PerformPostUpgradeTasks(client clientset.Interface, cfg *kubeadmapi.InitCon
+ 		errs = append(errs, err)
+ 	}
+ 
+-	if err := proxy.EnsureProxyAddon(&cfg.ClusterConfiguration, &cfg.LocalAPIEndpoint, client); err != nil {
+-		errs = append(errs, err)
+-	}
++	//if err := proxy.EnsureProxyAddon(&cfg.ClusterConfiguration, &cfg.LocalAPIEndpoint, client); err != nil {
++	//	errs = append(errs, err)
++	//}
+ 	return errorsutil.NewAggregate(errs)
+ }
+ 

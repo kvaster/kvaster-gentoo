@@ -27,6 +27,7 @@ RESTRICT="test"
 src_prepare() {
 	cd ${S}/src/k8s.io/kubernetes
 	epatch "${FILESDIR}"/gentoo.patch
+	epatch "${FILESDIR}"/no-proxy-upgrade.patch
 	cd ${S}
 
 	default
