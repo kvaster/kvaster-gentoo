@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit golang-build golang-vcs-snapshot bash-completion-r1
+inherit golang-build golang-vcs-snapshot bash-completion-r1 eutils
 
 MY_VER=${PV//_/-}
 MY_VER=${MY_VER//rc/rc.}
@@ -25,6 +25,10 @@ DEPEND=">=dev-lang/go-1.12
 RESTRICT="test"
 
 src_prepare() {
+	cd ${S}/src/k8s.io/kubernetes
+	epatch "${FILESDIR}"/gentoo.patch
+	cd ${S}
+
 	default
 	sed -i -e "/vendor\/github.com\/jteeuwen\/go-bindata\/go-bindata/d" -e "s/-s -w/-w/" src/${EGO_PN}/hack/lib/golang.sh || die
 	sed -i -e "/export PATH/d" src/${EGO_PN}/hack/generate-bindata.sh || die
