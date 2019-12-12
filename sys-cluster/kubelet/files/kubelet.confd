@@ -1,4 +1,10 @@
 ###
 # Kubernetes Kubelet (worker) config
 
-command_args=""
+. /var/lib/kubelet/kubeadm-flags.env
+
+KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
+
+command_args="${KUBELET_KUBECONFIG_ARGS} ${KUBELET_CONFIG_ARGS} ${KUBELET_KUBEADM_ARGS}"
+
