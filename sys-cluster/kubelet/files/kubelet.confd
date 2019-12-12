@@ -1,7 +1,8 @@
 ###
 # Kubernetes Kubelet (worker) config
 
-. /var/lib/kubelet/kubeadm-flags.env
+KUBEADM_ENV="/var/lib/kubelet/kubeadm-flags.env"
+[[ -f "${KUBEADM_ENV}" ]] && . "${KUBEADM_ENV}"
 
 KUBELET_KUBECONFIG_ARGS="--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 KUBELET_CONFIG_ARGS="--config=/var/lib/kubelet/config.yaml"
