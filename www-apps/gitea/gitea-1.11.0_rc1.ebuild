@@ -17,6 +17,7 @@ SLOT="0"
 DEPEND="
 	dev-go/go-bindata
 	sys-libs/pam
+	net-libs/nodejs
 "
 RDEPEND="
 	dev-vcs/git[curl,threads]
