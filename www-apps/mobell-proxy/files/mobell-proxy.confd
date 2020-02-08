@@ -1,0 +1,2 @@
+# arguments for proxy
+command_args="-log.file=/var/log/mobell-proxy/mobell-proxy.log -listen.addr=:8080 -mobotix.addr=mobotix:80 -mobotix.user=admin -mobotix.pass=adminpass"
