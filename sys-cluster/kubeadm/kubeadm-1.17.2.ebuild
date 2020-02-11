@@ -18,12 +18,12 @@ DEPEND=">=dev-lang/go-1.13
 RESTRICT="test"
 S="${WORKDIR}/kubernetes-${PV}"
 
-src_prepare() {
-	cd ${S}/src/k8s.io/kubernetes
-	epatch "${FILESDIR}"/gentoo.patch
-	epatch "${FILESDIR}"/no-proxy-upgrade.patch
-	cd ${S}
+PATCHES=(
+	"${FILESDIR}"/gentoo.patch
+	"${FILESDIR}"/no-proxy-upgrade.patch
+)
 
+src_prepare() {
 	default
 	sed -i -e "/vendor\/github.com\/jteeuwen\/go-bindata\/go-bindata/d" -e "s/-s -w/-w/" hack/lib/golang.sh || die
 	sed -i -e "/export PATH/d" hack/generate-bindata.sh || die
