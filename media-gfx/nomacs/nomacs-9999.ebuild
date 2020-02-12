@@ -35,7 +35,7 @@ RDEPEND="
 		media-libs/tiff:0
 	)
 	zip? ( dev-libs/quazip[qt5(+)] )
-	heif? ( media-libs/libheif )
+	heif? ( media-libs/qt-heif )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
