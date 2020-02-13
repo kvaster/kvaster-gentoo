@@ -2,7 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils git-2
+EAPI=6
+
+inherit eutils git-r3
 
 DESCRIPTION="An open-source interface to Z-Wave networks."
 HOMEPAGE="http://open-zwave.googlecode.com"
