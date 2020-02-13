@@ -8,7 +8,7 @@ inherit autotools toolchain-funcs eutils
 DESCRIPTION="Bind DynDB LDAP backend (replacement for sdb-ldap and dlz)"
 HOMEPAGE="https://pagure.io/bind-dyndb-ldap"
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 
 if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="https://github.com/kvaster/bind-dyndb-ldap.git"
