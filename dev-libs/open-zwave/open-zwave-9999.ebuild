@@ -12,7 +12,7 @@ EGIT_REPO_URI="https://github.com/OpenZWave/open-zwave.git"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~x86 ~amd64 ~arm64"
 
 IUSE=""
 SLOT="0"
