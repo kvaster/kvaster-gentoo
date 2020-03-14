@@ -1,41 +1,37 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit golang-build golang-vcs-snapshot systemd
-
-EGO_PN="k8s.io/kubernetes"
-ARCHIVE_URI="https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz -> kubernetes-${PV}.tar.gz"
-KEYWORDS="~amd64"
+EAPI=7
+inherit go-module systemd
 
 DESCRIPTION="Kubernetes Node Agent"
 HOMEPAGE="https://github.com/kubernetes/kubernetes https://kubernetes.io"
-SRC_URI="${ARCHIVE_URI}"
+SRC_URI="https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz -> kubernetes-${PV}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
+KEYWORDS="~amd64"
 IUSE="hardened"
 
 DEPEND="dev-go/go-bindata
-	>=dev-lang/go-1.11"
+	>=dev-lang/go-1.13"
 
 RESTRICT="test"
+S="${WORKDIR}/kubernetes-${PV}"
 
 src_prepare() {
 	default
-	sed -i -e "/vendor\/github.com\/jteeuwen\/go-bindata\/go-bindata/d"  -e "s/-s -w/-w/" src/${EGO_PN}/hack/lib/golang.sh || die
-	sed -i -e "/export PATH/d" src/${EGO_PN}/hack/generate-bindata.sh || die
+	sed -i -e "/vendor\/github.com\/jteeuwen\/go-bindata\/go-bindata/d"  -e "s/-s -w/-w/" hack/lib/golang.sh || die
+	sed -i -e "/export PATH/d" hack/generate-bindata.sh || die
 }
 
 src_compile() {
 	export CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')"
-	LDFLAGS="" GOPATH="${WORKDIR}/${P}" emake -j1 -C src/${EGO_PN} WHAT=cmd/${PN} GOFLAGS=-v
+	LDFLAGS="" emake -j1 WHAT=cmd/${PN} GOFLAGS=-v
 }
 
 src_install() {
-	pushd src/${EGO_PN} || die
 	dobin _output/bin/${PN}
-	popd || die
 	keepdir /etc/kubernetes/manifests /var/log/kubelet /var/lib/kubelet
 	newinitd "${FILESDIR}"/${PN}.initd ${PN}
 	newconfd "${FILESDIR}"/${PN}.confd ${PN}
