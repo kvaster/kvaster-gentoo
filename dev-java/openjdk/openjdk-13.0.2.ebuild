@@ -8,6 +8,10 @@ inherit autotools check-reqs flag-o-matic java-pkg-2 java-vm-2 multiprocessing p
 MY_PV=${PV/_p/+}
 SLOT=${MY_PV%%[.+]*}
 
+if [[ ! "${MY_PV}" == *"+"* ]]; then
+  MY_PV="${MY_PV}-ga"
+fi
+
 DESCRIPTION="Open source implementation of the Java programming language"
 HOMEPAGE="https://openjdk.java.net"
 SRC_URI="https://hg.${PN}.java.net/jdk-updates/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.bz2"
