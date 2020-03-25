@@ -1,12 +1,12 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 inherit autotools check-reqs flag-o-matic java-pkg-2 java-vm-2 multiprocessing pax-utils toolchain-funcs
 
-MY_PV=${PV/_p/+}
-SLOT=${MY_PV%%[.+]*}
+MY_PV="${PV/_p/+}"
+SLOT="${MY_PV%%[.+]*}"
 
 if [[ ! "${MY_PV}" == *"+"* ]]; then
   MY_PV="${MY_PV}-ga"
@@ -14,12 +14,12 @@ fi
 
 DESCRIPTION="Open source implementation of the Java programming language"
 HOMEPAGE="https://openjdk.java.net"
-SRC_URI="https://hg.${PN}.java.net/jdk-updates/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.bz2"
+SRC_URI="https://hg.${PN}.java.net/jdk-updates/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.bz2 -> ${P}.tar.bz2"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64"
 
-IUSE="alsa cups debug doc examples gentoo-vm headless-awt javafx +jbootstrap nsplugin +pch selinux source systemtap +webstart"
+IUSE="alsa cups debug doc examples gentoo-vm headless-awt javafx +jbootstrap nsplugin +pch selinux source systemtap webstart"
 
 COMMON_DEPEND="
 	media-libs/freetype:2=
@@ -63,7 +63,7 @@ DEPEND="
 	x11-libs/libXrender
 	x11-libs/libXt
 	x11-libs/libXtst
-	javafx? ( dev-java/openjfx:${SLOT} )
+	javafx? ( dev-java/openjfx:${SLOT}= )
 	|| (
 		dev-java/openjdk-bin:${SLOT}
 		dev-java/openjdk:${SLOT}
@@ -76,6 +76,8 @@ PDEPEND="
 "
 
 REQUIRED_USE="javafx? ( alsa !headless-awt )"
+
+PATCHES=( "${FILESDIR}/openjdk-11-make43.patch" )
 
 S="${WORKDIR}/jdk${SLOT}u-jdk-${MY_PV}"
 
@@ -237,7 +239,7 @@ src_install() {
 	dodir "${dest}"
 	cp -pPR * "${ddest}" || die
 
-	dosym "${EPREFIX}"/etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
+	dosym ../../../../../etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
 
 	# must be done before running itself
 	java-vm_set-pax-markings "${ddest}"
@@ -250,9 +252,9 @@ src_install() {
 	java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
 
 	if use doc ; then
-		insinto /usr/share/doc/"${PF}"/html
-		doins -r "${S}"/build/*-release/images/docs/*
-		dosym /usr/share/doc/"${PF}" /usr/share/doc/"${PN}-${SLOT}"
+		docinto html
+		dodoc -r "${S}"/build/*-release/images/docs/*
+		dosym ../../../usr/share/doc/"${PF}" /usr/share/doc/"${PN}-${SLOT}"
 	fi
 }
 
