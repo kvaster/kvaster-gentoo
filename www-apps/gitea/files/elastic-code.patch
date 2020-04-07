@@ -1,0 +1,1209 @@
+diff --git a/.drone.yml b/.drone.yml
+index 43ff21cac..3435f5142 100644
+--- a/.drone.yml
++++ b/.drone.yml
+@@ -176,6 +176,7 @@ steps:
+       GOPROXY: off
+       TAGS: bindata
+       TEST_LDAP: 1
++      TEST_INDEXER_CODE_ES_URL: "http://elastic:changeme@elasticsearch:9200"
+     depends_on:
+       - build
+ 
+diff --git a/custom/conf/app.ini.sample b/custom/conf/app.ini.sample
+index f83f06bc6..587e0c561 100644
+--- a/custom/conf/app.ini.sample
++++ b/custom/conf/app.ini.sample
+@@ -395,7 +395,15 @@ STARTUP_TIMEOUT=30s
+ 
+ ; repo indexer by default disabled, since it uses a lot of disk space
+ REPO_INDEXER_ENABLED = false
++; Code search engine type, could be `bleve` or `elasticsearch`.
++REPO_INDEXER_TYPE = bleve
++; Index file used for code search.
+ REPO_INDEXER_PATH = indexers/repos.bleve
++; Code indexer connection string, available when `REPO_INDEXER_TYPE` is elasticsearch. i.e. http://elastic:changeme@localhost:9200
++REPO_INDEXER_CONN_STR = 
++; Code indexer name, available when `REPO_INDEXER_TYPE` is elasticsearch
++`REPO_INDEXER_NAME` = gitea_codes
++
+ UPDATE_BUFFER_LEN = 20
+ MAX_FILE_SIZE = 1048576
+ ; A comma separated list of glob patterns (see https://github.com/gobwas/glob) to include
+diff --git a/docs/content/doc/advanced/config-cheat-sheet.en-us.md b/docs/content/doc/advanced/config-cheat-sheet.en-us.md
+index 2306dd228..93d2f133f 100644
+--- a/docs/content/doc/advanced/config-cheat-sheet.en-us.md
++++ b/docs/content/doc/advanced/config-cheat-sheet.en-us.md
+@@ -252,7 +252,11 @@ relation to port exhaustion.
+ - `ISSUE_INDEXER_QUEUE_BATCH_NUMBER`: **20**: Batch queue number.
+ 
+ - `REPO_INDEXER_ENABLED`: **false**: Enables code search (uses a lot of disk space, about 6 times more than the repository size).
++- `REPO_INDEXER_TYPE`: **bleve**: Code search engine type, could be `bleve` or `elasticsearch`.
+ - `REPO_INDEXER_PATH`: **indexers/repos.bleve**: Index file used for code search.
++- `REPO_INDEXER_CONN_STR`: ****: Code indexer connection string, available when `REPO_INDEXER_TYPE` is elasticsearch. i.e. http://elastic:changeme@localhost:9200
++- `REPO_INDEXER_NAME`: **gitea_codes**: Code indexer name, available when `REPO_INDEXER_TYPE` is elasticsearch
++
+ - `REPO_INDEXER_INCLUDE`: **empty**: A comma separated list of glob patterns (see https://github.com/gobwas/glob) to **include** in the index. Use `**.txt` to match any files with .txt extension. An empty list means include all files.
+ - `REPO_INDEXER_EXCLUDE`: **empty**: A comma separated list of glob patterns (see https://github.com/gobwas/glob) to **exclude** from the index. Files that match this list will not be indexed, even if they match in `REPO_INDEXER_INCLUDE`.
+ - `REPO_INDEXER_EXCLUDE_VENDORED`: **true**: Exclude vendored files from index.
+diff --git a/docs/content/doc/advanced/config-cheat-sheet.zh-cn.md b/docs/content/doc/advanced/config-cheat-sheet.zh-cn.md
+index acdee1a56..c8e99b83d 100644
+--- a/docs/content/doc/advanced/config-cheat-sheet.zh-cn.md
++++ b/docs/content/doc/advanced/config-cheat-sheet.zh-cn.md
+@@ -98,8 +98,12 @@ menu:
+ - `ISSUE_INDEXER_QUEUE_CONN_STR`: **addrs=127.0.0.1:6379 db=0**: 当 `ISSUE_INDEXER_QUEUE_TYPE` 为 `redis` 时，保存Redis队列的连接字符串。
+ - `ISSUE_INDEXER_QUEUE_BATCH_NUMBER`: **20**: 队列处理中批量提交数量。
+ 
+-- `REPO_INDEXER_ENABLED`: **false**: 是否启用代码搜索（启用后会占用比较大的磁盘空间）。
++- `REPO_INDEXER_ENABLED`: **false**: 是否启用代码搜索（启用后会占用比较大的磁盘空间，如果是bleve可能需要占用约6倍存储空间）。
++- `REPO_INDEXER_TYPE`: **bleve**: 代码搜索引擎类型，可以为 `bleve` 或者 `elasticsearch`。
+ - `REPO_INDEXER_PATH`: **indexers/repos.bleve**: 用于代码搜索的索引文件路径。
++- `REPO_INDEXER_CONN_STR`: ****: 代码搜索引擎连接字符串，当 `REPO_INDEXER_TYPE` 为 `elasticsearch` 时有效。例如： http://elastic:changeme@localhost:9200
++- `REPO_INDEXER_NAME`: **gitea_codes**: 代码搜索引擎的名字，当 `REPO_INDEXER_TYPE` 为 `elasticsearch` 时有效。
++
+ - `UPDATE_BUFFER_LEN`: **20**: 代码索引请求的缓冲区长度。
+ - `MAX_FILE_SIZE`: **1048576**: 进行解析的源代码文件的最大长度，小于该值时才会索引。
+ 
+diff --git a/modules/indexer/code/bleve.go b/modules/indexer/code/bleve.go
+index 39171d17a..68a0d4830 100644
+--- a/modules/indexer/code/bleve.go
++++ b/modules/indexer/code/bleve.go
+@@ -57,10 +57,10 @@ func addUnicodeNormalizeTokenFilter(m *mapping.IndexMappingImpl) error {
+ 	})
+ }
+ 
+-// openIndexer open the index at the specified path, checking for metadata
++// openBleveIndexer open the index at the specified path, checking for metadata
+ // updates and bleve version updates.  If index needs to be created (or
+ // re-created), returns (nil, nil)
+-func openIndexer(path string, latestVersion int) (bleve.Index, error) {
++func openBleveIndexer(path string, latestVersion int) (bleve.Index, error) {
+ 	_, err := os.Stat(path)
+ 	if err != nil && os.IsNotExist(err) {
+ 		return nil, nil
+@@ -103,54 +103,14 @@ func (d *RepoIndexerData) Type() string {
+ 	return repoIndexerDocType
+ }
+ 
+-func addUpdate(commitSha string, update fileUpdate, repo *models.Repository, batch rupture.FlushingBatch) error {
+-	// Ignore vendored files in code search
+-	if setting.Indexer.ExcludeVendored && enry.IsVendor(update.Filename) {
+-		return nil
+-	}
+-	stdout, err := git.NewCommand("cat-file", "-s", update.BlobSha).
+-		RunInDir(repo.RepoPath())
+-	if err != nil {
+-		return err
+-	}
+-	if size, err := strconv.Atoi(strings.TrimSpace(stdout)); err != nil {
+-		return fmt.Errorf("Misformatted git cat-file output: %v", err)
+-	} else if int64(size) > setting.Indexer.MaxIndexerFileSize {
+-		return addDelete(update.Filename, repo, batch)
+-	}
+-
+-	fileContents, err := git.NewCommand("cat-file", "blob", update.BlobSha).
+-		RunInDirBytes(repo.RepoPath())
+-	if err != nil {
+-		return err
+-	} else if !base.IsTextFile(fileContents) {
+-		// FIXME: UTF-16 files will probably fail here
+-		return nil
+-	}
+-
+-	id := filenameIndexerID(repo.ID, update.Filename)
+-	return batch.Index(id, &RepoIndexerData{
+-		RepoID:    repo.ID,
+-		CommitID:  commitSha,
+-		Content:   string(charset.ToUTF8DropErrors(fileContents)),
+-		Language:  analyze.GetCodeLanguage(update.Filename, fileContents),
+-		UpdatedAt: time.Now().UTC(),
+-	})
+-}
+-
+-func addDelete(filename string, repo *models.Repository, batch rupture.FlushingBatch) error {
+-	id := filenameIndexerID(repo.ID, filename)
+-	return batch.Delete(id)
+-}
+-
+ const (
+ 	repoIndexerAnalyzer      = "repoIndexerAnalyzer"
+ 	repoIndexerDocType       = "repoIndexerDocType"
+ 	repoIndexerLatestVersion = 5
+ )
+ 
+-// createRepoIndexer create a repo indexer if one does not already exist
+-func createRepoIndexer(path string, latestVersion int) (bleve.Index, error) {
++// createBleveIndexer create a bleve repo indexer if one does not already exist
++func createBleveIndexer(path string, latestVersion int) (bleve.Index, error) {
+ 	docMapping := bleve.NewDocumentMapping()
+ 	numericFieldMapping := bleve.NewNumericFieldMapping()
+ 	numericFieldMapping.IncludeInAll = false
+@@ -198,18 +158,6 @@ func createRepoIndexer(path string, latestVersion int) (bleve.Index, error) {
+ 	return indexer, nil
+ }
+ 
+-func filenameIndexerID(repoID int64, filename string) string {
+-	return indexerID(repoID) + "_" + filename
+-}
+-
+-func filenameOfIndexerID(indexerID string) string {
+-	index := strings.IndexByte(indexerID, '_')
+-	if index == -1 {
+-		log.Error("Unexpected ID in repo indexer: %s", indexerID)
+-	}
+-	return indexerID[index+1:]
+-}
+-
+ var (
+ 	_ Indexer = &BleveIndexer{}
+ )
+@@ -229,10 +177,51 @@ func NewBleveIndexer(indexDir string) (*BleveIndexer, bool, error) {
+ 	return indexer, created, err
+ }
+ 
++func (b *BleveIndexer) addUpdate(commitSha string, update fileUpdate, repo *models.Repository, batch rupture.FlushingBatch) error {
++	// Ignore vendored files in code search
++	if setting.Indexer.ExcludeVendored && enry.IsVendor(update.Filename) {
++		return nil
++	}
++
++	stdout, err := git.NewCommand("cat-file", "-s", update.BlobSha).
++		RunInDir(repo.RepoPath())
++	if err != nil {
++		return err
++	}
++	if size, err := strconv.Atoi(strings.TrimSpace(stdout)); err != nil {
++		return fmt.Errorf("Misformatted git cat-file output: %v", err)
++	} else if int64(size) > setting.Indexer.MaxIndexerFileSize {
++		return b.addDelete(update.Filename, repo, batch)
++	}
++
++	fileContents, err := git.NewCommand("cat-file", "blob", update.BlobSha).
++		RunInDirBytes(repo.RepoPath())
++	if err != nil {
++		return err
++	} else if !base.IsTextFile(fileContents) {
++		// FIXME: UTF-16 files will probably fail here
++		return nil
++	}
++
++	id := filenameIndexerID(repo.ID, update.Filename)
++	return batch.Index(id, &RepoIndexerData{
++		RepoID:    repo.ID,
++		CommitID:  commitSha,
++		Content:   string(charset.ToUTF8DropErrors(fileContents)),
++		Language:  analyze.GetCodeLanguage(update.Filename, fileContents),
++		UpdatedAt: time.Now().UTC(),
++	})
++}
++
++func (b *BleveIndexer) addDelete(filename string, repo *models.Repository, batch rupture.FlushingBatch) error {
++	id := filenameIndexerID(repo.ID, filename)
++	return batch.Delete(id)
++}
++
+ // init init the indexer
+ func (b *BleveIndexer) init() (bool, error) {
+ 	var err error
+-	b.indexer, err = openIndexer(b.indexDir, repoIndexerLatestVersion)
++	b.indexer, err = openBleveIndexer(b.indexDir, repoIndexerLatestVersion)
+ 	if err != nil {
+ 		return false, err
+ 	}
+@@ -240,7 +229,7 @@ func (b *BleveIndexer) init() (bool, error) {
+ 		return false, nil
+ 	}
+ 
+-	b.indexer, err = createRepoIndexer(b.indexDir, repoIndexerLatestVersion)
++	b.indexer, err = createBleveIndexer(b.indexDir, repoIndexerLatestVersion)
+ 	if err != nil {
+ 		return false, err
+ 	}
+@@ -261,38 +250,19 @@ func (b *BleveIndexer) Close() {
+ }
+ 
+ // Index indexes the data
+-func (b *BleveIndexer) Index(repoID int64) error {
+-	repo, err := models.GetRepositoryByID(repoID)
+-	if err != nil {
+-		return err
+-	}
+-
+-	sha, err := getDefaultBranchSha(repo)
+-	if err != nil {
+-		return err
+-	}
+-	changes, err := getRepoChanges(repo, sha)
+-	if err != nil {
+-		return err
+-	} else if changes == nil {
+-		return nil
+-	}
+-
++func (b *BleveIndexer) Index(repo *models.Repository, sha string, changes *repoChanges) error {
+ 	batch := rupture.NewFlushingBatch(b.indexer, maxBatchSize)
+ 	for _, update := range changes.Updates {
+-		if err := addUpdate(sha, update, repo, batch); err != nil {
++		if err := b.addUpdate(sha, update, repo, batch); err != nil {
+ 			return err
+ 		}
+ 	}
+ 	for _, filename := range changes.RemovedFilenames {
+-		if err := addDelete(filename, repo, batch); err != nil {
++		if err := b.addDelete(filename, repo, batch); err != nil {
+ 			return err
+ 		}
+ 	}
+-	if err = batch.Flush(); err != nil {
+-		return err
+-	}
+-	return repo.UpdateIndexerStatus(models.RepoIndexerTypeCode, sha)
++	return batch.Flush()
+ }
+ 
+ // Delete deletes indexes by ids
+diff --git a/modules/indexer/code/bleve_test.go b/modules/indexer/code/bleve_test.go
+index 89cfceea2..0fa2757c9 100644
+--- a/modules/indexer/code/bleve_test.go
++++ b/modules/indexer/code/bleve_test.go
+@@ -7,20 +7,14 @@ package code
+ import (
+ 	"io/ioutil"
+ 	"os"
+-	"path/filepath"
+ 	"testing"
+ 
+ 	"code.gitea.io/gitea/models"
+-	"code.gitea.io/gitea/modules/setting"
+ 
+ 	"github.com/stretchr/testify/assert"
+ )
+ 
+-func TestMain(m *testing.M) {
+-	models.MainTest(m, filepath.Join("..", "..", ".."))
+-}
+-
+-func TestIndexAndSearch(t *testing.T) {
++func TestBleveIndexAndSearch(t *testing.T) {
+ 	models.PrepareTestEnv(t)
+ 
+ 	dir, err := ioutil.TempDir("", "bleve.index")
+@@ -31,10 +25,9 @@ func TestIndexAndSearch(t *testing.T) {
+ 	}
+ 	defer os.RemoveAll(dir)
+ 
+-	setting.Indexer.RepoIndexerEnabled = true
+ 	idx, _, err := NewBleveIndexer(dir)
+ 	if err != nil {
+-		assert.Fail(t, "Unable to create indexer Error: %v", err)
++		assert.Fail(t, "Unable to create bleve indexer Error: %v", err)
+ 		if idx != nil {
+ 			idx.Close()
+ 		}
+@@ -42,45 +35,5 @@ func TestIndexAndSearch(t *testing.T) {
+ 	}
+ 	defer idx.Close()
+ 
+-	err = idx.Index(1)
+-	assert.NoError(t, err)
+-
+-	var (
+-		keywords = []struct {
+-			Keyword string
+-			IDs     []int64
+-			Langs   int
+-		}{
+-			{
+-				Keyword: "Description",
+-				IDs:     []int64{1},
+-				Langs:   1,
+-			},
+-			{
+-				Keyword: "repo1",
+-				IDs:     []int64{1},
+-				Langs:   1,
+-			},
+-			{
+-				Keyword: "non-exist",
+-				IDs:     []int64{},
+-				Langs:   0,
+-			},
+-		}
+-	)
+-
+-	for _, kw := range keywords {
+-		total, res, langs, err := idx.Search(nil, "", kw.Keyword, 1, 10)
+-		assert.NoError(t, err)
+-		assert.EqualValues(t, len(kw.IDs), total)
+-
+-		assert.NotNil(t, langs)
+-		assert.Len(t, langs, kw.Langs)
+-
+-		var ids = make([]int64, 0, len(res))
+-		for _, hit := range res {
+-			ids = append(ids, hit.RepoID)
+-		}
+-		assert.EqualValues(t, kw.IDs, ids)
+-	}
++	testIndexer("beleve", t, idx)
+ }
+diff --git a/modules/indexer/code/elastic_search.go b/modules/indexer/code/elastic_search.go
+new file mode 100644
+index 000000000..5a2414c94
+--- /dev/null
++++ b/modules/indexer/code/elastic_search.go
+@@ -0,0 +1,389 @@
++// Copyright 2020 The Gitea Authors. All rights reserved.
++// Use of this source code is governed by a MIT-style
++// license that can be found in the LICENSE file.
++
++package code
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"strconv"
++	"strings"
++	"time"
++
++	"code.gitea.io/gitea/models"
++	"code.gitea.io/gitea/modules/analyze"
++	"code.gitea.io/gitea/modules/base"
++	"code.gitea.io/gitea/modules/charset"
++	"code.gitea.io/gitea/modules/git"
++	"code.gitea.io/gitea/modules/log"
++	"code.gitea.io/gitea/modules/setting"
++	"code.gitea.io/gitea/modules/timeutil"
++
++	"github.com/olivere/elastic/v7"
++	"github.com/src-d/enry/v2"
++)
++
++var (
++	_ Indexer = &ElasticSearchIndexer{}
++)
++
++// ElasticSearchIndexer implements Indexer interface
++type ElasticSearchIndexer struct {
++	client      *elastic.Client
++	indexerName string
++}
++
++type elasticLogger struct {
++	*log.Logger
++}
++
++func (l elasticLogger) Printf(format string, args ...interface{}) {
++	_ = l.Logger.Log(2, l.Logger.GetLevel(), format, args...)
++}
++
++// NewElasticSearchIndexer creates a new elasticsearch indexer
++func NewElasticSearchIndexer(url, indexerName string) (*ElasticSearchIndexer, bool, error) {
++	opts := []elastic.ClientOptionFunc{
++		elastic.SetURL(url),
++		elastic.SetSniff(false),
++		elastic.SetHealthcheckInterval(10 * time.Second),
++		elastic.SetGzip(false),
++	}
++
++	logger := elasticLogger{log.GetLogger(log.DEFAULT)}
++
++	if logger.GetLevel() == log.TRACE || logger.GetLevel() == log.DEBUG {
++		opts = append(opts, elastic.SetTraceLog(logger))
++	} else if logger.GetLevel() == log.ERROR || logger.GetLevel() == log.CRITICAL || logger.GetLevel() == log.FATAL {
++		opts = append(opts, elastic.SetErrorLog(logger))
++	} else if logger.GetLevel() == log.INFO || logger.GetLevel() == log.WARN {
++		opts = append(opts, elastic.SetInfoLog(logger))
++	}
++
++	client, err := elastic.NewClient(opts...)
++	if err != nil {
++		return nil, false, err
++	}
++
++	indexer := &ElasticSearchIndexer{
++		client:      client,
++		indexerName: indexerName,
++	}
++	exists, err := indexer.init()
++
++	return indexer, exists, err
++}
++
++const (
++	defaultMapping = `{
++		"mappings": {
++			"properties": {
++				"repo_id": {
++					"type": "long",
++					"index": true
++				},
++				"content": {
++					"type": "text",
++					"index": true
++				},
++				"commit_id": {
++					"type": "keyword",
++					"index": true
++				},
++				"language": {
++					"type": "keyword",
++					"index": true
++				},
++				"updated_at": {
++					"type": "long",
++					"index": true
++				}
++			}
++		}
++	}`
++)
++
++// Init will initialize the indexer
++func (b *ElasticSearchIndexer) init() (bool, error) {
++	ctx := context.Background()
++	exists, err := b.client.IndexExists(b.indexerName).Do(ctx)
++	if err != nil {
++		return false, err
++	}
++	if exists {
++		return true, nil
++	}
++
++	var mapping = defaultMapping
++
++	createIndex, err := b.client.CreateIndex(b.indexerName).BodyString(mapping).Do(ctx)
++	if err != nil {
++		return false, err
++	}
++	if !createIndex.Acknowledged {
++		return false, errors.New("init failed")
++	}
++
++	return false, nil
++}
++
++func (b *ElasticSearchIndexer) addUpdate(sha string, update fileUpdate, repo *models.Repository) ([]elastic.BulkableRequest, error) {
++	stdout, err := git.NewCommand("cat-file", "-s", update.BlobSha).
++		RunInDir(repo.RepoPath())
++	if err != nil {
++		return nil, err
++	}
++	if size, err := strconv.Atoi(strings.TrimSpace(stdout)); err != nil {
++		return nil, fmt.Errorf("Misformatted git cat-file output: %v", err)
++	} else if int64(size) > setting.Indexer.MaxIndexerFileSize {
++		return b.addDelete(update.Filename, repo)
++	}
++
++	fileContents, err := git.NewCommand("cat-file", "blob", update.BlobSha).
++		RunInDirBytes(repo.RepoPath())
++	if err != nil {
++		return nil, err
++	} else if !base.IsTextFile(fileContents) {
++		// FIXME: UTF-16 files will probably fail here
++		return nil, nil
++	}
++
++	id := filenameIndexerID(repo.ID, update.Filename)
++
++	return []elastic.BulkableRequest{
++		elastic.NewBulkIndexRequest().
++			Index(b.indexerName).
++			Id(id).
++			Doc(map[string]interface{}{
++				"repo_id":    repo.ID,
++				"content":    string(charset.ToUTF8DropErrors(fileContents)),
++				"commit_id":  sha,
++				"language":   analyze.GetCodeLanguage(update.Filename, fileContents),
++				"updated_at": timeutil.TimeStampNow(),
++			}),
++	}, nil
++}
++
++func (b *ElasticSearchIndexer) addDelete(filename string, repo *models.Repository) ([]elastic.BulkableRequest, error) {
++	id := filenameIndexerID(repo.ID, filename)
++	return []elastic.BulkableRequest{
++		elastic.NewBulkDeleteRequest().
++			Index(b.indexerName).
++			Id(id),
++	}, nil
++}
++
++// Index will save the index data
++func (b *ElasticSearchIndexer) Index(repo *models.Repository, sha string, changes *repoChanges) error {
++	reqs := make([]elastic.BulkableRequest, 0)
++	for _, update := range changes.Updates {
++		updateReqs, err := b.addUpdate(sha, update, repo)
++		if err != nil {
++			return err
++		}
++		if len(updateReqs) > 0 {
++			reqs = append(reqs, updateReqs...)
++		}
++	}
++
++	for _, filename := range changes.RemovedFilenames {
++		delReqs, err := b.addDelete(filename, repo)
++		if err != nil {
++			return err
++		}
++		if len(delReqs) > 0 {
++			reqs = append(reqs, delReqs...)
++		}
++	}
++
++	if len(reqs) > 0 {
++		_, err := b.client.Bulk().
++			Index(b.indexerName).
++			Add(reqs...).
++			Do(context.Background())
++		return err
++	}
++	return nil
++}
++
++// Delete deletes indexes by ids
++func (b *ElasticSearchIndexer) Delete(repoID int64) error {
++	_, err := b.client.DeleteByQuery(b.indexerName).
++		Query(elastic.NewTermsQuery("repo_id", repoID)).
++		Do(context.Background())
++	return err
++}
++
++func convertResult(searchResult *elastic.SearchResult, kw string, pageSize int) (int64, []*SearchResult, []*SearchResultLanguages, error) {
++	hits := make([]*SearchResult, 0, pageSize)
++	for _, hit := range searchResult.Hits.Hits {
++		repoID, fileName := parseIndexerID(hit.Id)
++		var res = make(map[string]interface{})
++		if err := json.Unmarshal(hit.Source, &res); err != nil {
++			return 0, nil, nil, err
++		}
++
++		language := res["language"].(string)
++		commitId := res["commit_id"].(string)
++		content := res["content"].(string)
++		updateUnix := timeutil.TimeStamp(res["updated_at"].(float64))
++		color := enry.GetColor(language)
++
++		fragments := []rune(content)
++
++		c, ok := hit.Highlight["content"]
++		if ok && len(c) > 0 {
++			for _, p := range c {
++				s := strings.FieldsFunc(p, func(r rune) bool {
++					if r == ':' || r == '-' {
++						return true
++					}
++					return false
++				})
++
++				if len(s) >= 4 {
++					startFragment, e1 := strconv.Atoi(s[0])
++					endFragment, e2 := strconv.Atoi(s[len(s) - 1])
++					if e1 != nil || e2 != nil {
++						continue
++					}
++
++					startRuneIndex, e1 := strconv.Atoi(s[1])
++					endRuneIndex, e2 := strconv.Atoi(s[len(s) - 2])
++					if e1 != nil || e2 != nil {
++						continue
++					}
++
++					fragment := fragments[startFragment:endFragment]
++
++					startRuneIndex -= startFragment
++					endRuneIndex -= startFragment
++
++					stringFragment := string(fragment)
++					startIndex := 0
++					endIndex := len(stringFragment)
++
++					idx := 0
++					for cp, _ := range stringFragment {
++						if idx == startRuneIndex {
++							startIndex = cp
++						} else if idx == endRuneIndex {
++							endIndex = cp
++						}
++						idx++
++					}
++
++					hits = append(hits, &SearchResult{
++						RepoID:      repoID,
++						Filename:    fileName,
++						CommitID:    commitId,
++						Content:     stringFragment,
++						UpdatedUnix: updateUnix,
++						Language:    language,
++						StartIndex:  startIndex,
++						EndIndex:    endIndex,
++						Color:       color,
++					})
++				}
++			}
++		}
++	}
++
++	return searchResult.TotalHits(), hits, extractAggs(searchResult), nil
++}
++
++func extractAggs(searchResult *elastic.SearchResult) []*SearchResultLanguages {
++	var searchResultLanguages []*SearchResultLanguages
++	agg, found := searchResult.Aggregations.Terms("language")
++	if found {
++		searchResultLanguages = make([]*SearchResultLanguages, 0, 10)
++
++		for _, bucket := range agg.Buckets {
++			searchResultLanguages = append(searchResultLanguages, &SearchResultLanguages{
++				Language: bucket.Key.(string),
++				Color:    enry.GetColor(bucket.Key.(string)),
++				Count:    int(bucket.DocCount),
++			})
++		}
++	}
++	return searchResultLanguages
++}
++
++// Search searches for codes and language stats by given conditions.
++func (b *ElasticSearchIndexer) Search(repoIDs []int64, language, keyword string, page, pageSize int) (int64, []*SearchResult, []*SearchResultLanguages, error) {
++	kwQuery := elastic.NewMultiMatchQuery(keyword, "content")
++	query := elastic.NewBoolQuery()
++	query = query.Must(kwQuery)
++	if len(repoIDs) > 0 {
++		var repoStrs = make([]interface{}, 0, len(repoIDs))
++		for _, repoID := range repoIDs {
++			repoStrs = append(repoStrs, repoID)
++		}
++		repoQuery := elastic.NewTermsQuery("repo_id", repoStrs...)
++		query = query.Must(repoQuery)
++	}
++
++	var (
++		start       int
++		kw          = "<em>" + keyword + "</em>"
++		aggregation = elastic.NewTermsAggregation().Field("language").Size(10).OrderByCountDesc()
++	)
++
++	if page > 0 {
++		start = (page - 1) * pageSize
++	}
++
++	highlight := elastic.NewHighlight().
++		Fields(elastic.NewHighlighterField("content").
++			HighlighterType("experimental").
++			Options(map[string]interface{}{"return_offsets": true}))
++
++	if len(language) == 0 {
++		searchResult, err := b.client.Search().
++			Index(b.indexerName).
++			Aggregation("language", aggregation).
++			Query(query).
++			Highlight(highlight).
++			Sort("repo_id", true).
++			From(start).Size(pageSize).
++			Do(context.Background())
++		if err != nil {
++			return 0, nil, nil, err
++		}
++
++		return convertResult(searchResult, kw, pageSize)
++	}
++
++	langQuery := elastic.NewMatchQuery("language", language)
++	countResult, err := b.client.Search().
++		Index(b.indexerName).
++		Aggregation("language", aggregation).
++		Query(query).
++		Size(0). // We only needs stats information
++		Do(context.Background())
++	if err != nil {
++		return 0, nil, nil, err
++	}
++
++	query = query.Must(langQuery)
++	searchResult, err := b.client.Search().
++		Index(b.indexerName).
++		Query(query).
++		Highlight(highlight).
++		Sort("repo_id", true).
++		From(start).Size(pageSize).
++		Do(context.Background())
++	if err != nil {
++		return 0, nil, nil, err
++	}
++
++	total, hits, _, err := convertResult(searchResult, kw, pageSize)
++
++	return total, hits, extractAggs(countResult), err
++}
++
++// Close implements indexer
++func (b *ElasticSearchIndexer) Close() {}
+diff --git a/modules/indexer/code/elastic_search_test.go b/modules/indexer/code/elastic_search_test.go
+new file mode 100644
+index 000000000..a23093974
+--- /dev/null
++++ b/modules/indexer/code/elastic_search_test.go
+@@ -0,0 +1,36 @@
++// Copyright 2020 The Gitea Authors. All rights reserved.
++// Use of this source code is governed by a MIT-style
++// license that can be found in the LICENSE file.
++
++package code
++
++import (
++	"os"
++	"testing"
++
++	"code.gitea.io/gitea/models"
++
++	"github.com/stretchr/testify/assert"
++)
++
++func TestESIndexAndSearch(t *testing.T) {
++	models.PrepareTestEnv(t)
++
++	u := os.Getenv("TEST_INDEXER_CODE_ES_URL")
++	if u == "" {
++		t.SkipNow()
++		return
++	}
++
++	indexer, _, err := NewElasticSearchIndexer(u, "gitea_codes")
++	if err != nil {
++		assert.Fail(t, "Unable to create ES indexer Error: %v", err)
++		if indexer != nil {
++			indexer.Close()
++		}
++		return
++	}
++	defer indexer.Close()
++
++	testIndexer("elastic_search", t, indexer)
++}
+diff --git a/modules/indexer/code/indexer.go b/modules/indexer/code/indexer.go
+index 3e90f769d..c99b09168 100644
+--- a/modules/indexer/code/indexer.go
++++ b/modules/indexer/code/indexer.go
+@@ -7,8 +7,11 @@ package code
+ import (
+ 	"context"
+ 	"os"
++	"strconv"
++	"strings"
+ 	"time"
+ 
++	"code.gitea.io/gitea/models"
+ 	"code.gitea.io/gitea/modules/graceful"
+ 	"code.gitea.io/gitea/modules/log"
+ 	"code.gitea.io/gitea/modules/setting"
+@@ -37,12 +40,33 @@ type SearchResultLanguages struct {
+ 
+ // Indexer defines an interface to indexer issues contents
+ type Indexer interface {
+-	Index(repoID int64) error
++	Index(repo *models.Repository, sha string, changes *repoChanges) error
+ 	Delete(repoID int64) error
+ 	Search(repoIDs []int64, language, keyword string, page, pageSize int) (int64, []*SearchResult, []*SearchResultLanguages, error)
+ 	Close()
+ }
+ 
++func filenameIndexerID(repoID int64, filename string) string {
++	return indexerID(repoID) + "_" + filename
++}
++
++func parseIndexerID(indexerID string) (int64, string) {
++	index := strings.IndexByte(indexerID, '_')
++	if index == -1 {
++		log.Error("Unexpected ID in repo indexer: %s", indexerID)
++	}
++	repoID, _ := strconv.ParseInt(indexerID[:index], 10, 64)
++	return repoID, indexerID[index+1:]
++}
++
++func filenameOfIndexerID(indexerID string) string {
++	index := strings.IndexByte(indexerID, '_')
++	if index == -1 {
++		log.Error("Unexpected ID in repo indexer: %s", indexerID)
++	}
++	return indexerID[index+1:]
++}
++
+ // Init initialize the repo indexer
+ func Init() {
+ 	if !setting.Indexer.RepoIndexerEnabled {
+@@ -63,33 +87,59 @@ func Init() {
+ 	waitChannel := make(chan time.Duration)
+ 	go func() {
+ 		start := time.Now()
+-		log.Info("PID: %d Initializing Repository Indexer at: %s", os.Getpid(), setting.Indexer.RepoPath)
+-		defer func() {
+-			if err := recover(); err != nil {
+-				log.Error("PANIC whilst initializing repository indexer: %v\nStacktrace: %s", err, log.Stack(2))
+-				log.Error("The indexer files are likely corrupted and may need to be deleted")
+-				log.Error("You can completely remove the \"%s\" directory to make Gitea recreate the indexes", setting.Indexer.RepoPath)
++		var populate bool
++		switch setting.Indexer.RepoType {
++		case "bleve":
++			log.Info("PID: %d Initializing Repository Indexer at: %s", os.Getpid(), setting.Indexer.RepoPath)
++			defer func() {
++				if err := recover(); err != nil {
++					log.Error("PANIC whilst initializing repository indexer: %v\nStacktrace: %s", err, log.Stack(2))
++					log.Error("The indexer files are likely corrupted and may need to be deleted")
++					log.Error("You can completely remove the \"%s\" directory to make Gitea recreate the indexes", setting.Indexer.RepoPath)
++				}
++			}()
++
++			bleveIndexer, created, err := NewBleveIndexer(setting.Indexer.RepoPath)
++			if err != nil {
++				if bleveIndexer != nil {
++					bleveIndexer.Close()
++				}
+ 				cancel()
+ 				indexer.Close()
+ 				close(waitChannel)
+-				log.Fatal("PID: %d Unable to initialize the Repository Indexer at path: %s Error: %v", os.Getpid(), setting.Indexer.RepoPath, err)
++				log.Fatal("PID: %d Unable to initialize the bleve Repository Indexer at path: %s Error: %v", os.Getpid(), setting.Indexer.RepoPath, err)
+ 			}
+-		}()
+-		bleveIndexer, created, err := NewBleveIndexer(setting.Indexer.RepoPath)
+-		if err != nil {
+-			if bleveIndexer != nil {
+-				bleveIndexer.Close()
++			populate = created
++			indexer.set(bleveIndexer)
++		case "elasticsearch":
++			log.Info("PID: %d Initializing Repository Indexer at: %s", os.Getpid(), setting.Indexer.RepoConnStr)
++			defer func() {
++				if err := recover(); err != nil {
++					log.Error("PANIC whilst initializing repository indexer: %v\nStacktrace: %s", err, log.Stack(2))
++					log.Error("The indexer files are likely corrupted and may need to be deleted")
++					log.Error("You can completely remove the \"%s\" index to make Gitea recreate the indexes", setting.Indexer.RepoConnStr)
++				}
++			}()
++
++			esIndexer, exists, err := NewElasticSearchIndexer(setting.Indexer.RepoConnStr, setting.Indexer.RepoIndexerName)
++			if err != nil {
++				if esIndexer != nil {
++					esIndexer.Close()
++				}
++				cancel()
++				indexer.Close()
++				close(waitChannel)
++				log.Fatal("PID: %d Unable to initialize the elasticsearch Repository Indexer connstr: %s Error: %v", os.Getpid(), setting.Indexer.RepoConnStr, err)
+ 			}
+-			cancel()
+-			indexer.Close()
+-			close(waitChannel)
+-			log.Fatal("PID: %d Unable to initialize the Repository Indexer at path: %s Error: %v", os.Getpid(), setting.Indexer.RepoPath, err)
++			populate = !exists
++			indexer.set(esIndexer)
++		default:
++			log.Fatal("PID: %d Unknow Indexer type: %s", os.Getpid(), setting.Indexer.RepoType)
+ 		}
+-		indexer.set(bleveIndexer)
+ 
+ 		go processRepoIndexerOperationQueue(indexer)
+ 
+-		if created {
++		if populate {
+ 			go populateRepoIndexer()
+ 		}
+ 		select {
+diff --git a/modules/indexer/code/indexer_test.go b/modules/indexer/code/indexer_test.go
+new file mode 100644
+index 000000000..32f704fbf
+--- /dev/null
++++ b/modules/indexer/code/indexer_test.go
+@@ -0,0 +1,83 @@
++// Copyright 2020 The Gitea Authors. All rights reserved.
++// Use of this source code is governed by a MIT-style
++// license that can be found in the LICENSE file.
++
++package code
++
++import (
++	"path/filepath"
++	"testing"
++
++	"code.gitea.io/gitea/models"
++	"github.com/stretchr/testify/assert"
++)
++
++func TestMain(m *testing.M) {
++	models.MainTest(m, filepath.Join("..", "..", ".."))
++}
++
++func testIndexer(name string, t *testing.T, indexer Indexer) {
++	t.Run(name, func(t *testing.T) {
++		var repoID int64 = 1
++		err := index(indexer, repoID)
++		assert.NoError(t, err)
++		var (
++			keywords = []struct {
++				RepoIDs []int64
++				Keyword string
++				IDs     []int64
++				Langs   int
++			}{
++				{
++					RepoIDs: nil,
++					Keyword: "Description",
++					IDs:     []int64{repoID},
++					Langs:   1,
++				},
++				{
++					RepoIDs: []int64{2},
++					Keyword: "Description",
++					IDs:     []int64{},
++					Langs:   0,
++				},
++				{
++					RepoIDs: nil,
++					Keyword: "repo1",
++					IDs:     []int64{repoID},
++					Langs:   1,
++				},
++				{
++					RepoIDs: []int64{2},
++					Keyword: "repo1",
++					IDs:     []int64{},
++					Langs:   0,
++				},
++				{
++					RepoIDs: nil,
++					Keyword: "non-exist",
++					IDs:     []int64{},
++					Langs:   0,
++				},
++			}
++		)
++
++		for _, kw := range keywords {
++			t.Run(kw.Keyword, func(t *testing.T) {
++				total, res, langs, err := indexer.Search(kw.RepoIDs, "", kw.Keyword, 1, 10)
++				assert.NoError(t, err)
++				assert.EqualValues(t, len(kw.IDs), total)
++				assert.EqualValues(t, kw.Langs, len(langs))
++
++				var ids = make([]int64, 0, len(res))
++				for _, hit := range res {
++					ids = append(ids, hit.RepoID)
++					assert.EqualValues(t, "# repo1\n\nDescription for repo1", hit.Content)
++				}
++				assert.EqualValues(t, kw.IDs, ids)
++
++			})
++		}
++
++		//indexer.Delete(repoID)
++	})
++}
+diff --git a/modules/indexer/code/queue.go b/modules/indexer/code/queue.go
+index 94675559e..844003e1f 100644
+--- a/modules/indexer/code/queue.go
++++ b/modules/indexer/code/queue.go
+@@ -10,7 +10,6 @@ import (
+ 	"code.gitea.io/gitea/models"
+ 	"code.gitea.io/gitea/modules/graceful"
+ 	"code.gitea.io/gitea/modules/log"
+-	"code.gitea.io/gitea/modules/setting"
+ )
+ 
+ type repoIndexerOperation struct {
+@@ -25,6 +24,30 @@ func initQueue(queueLength int) {
+ 	repoIndexerOperationQueue = make(chan repoIndexerOperation, queueLength)
+ }
+ 
++func index(indexer Indexer, repoID int64) error {
++	repo, err := models.GetRepositoryByID(repoID)
++	if err != nil {
++		return err
++	}
++
++	sha, err := getDefaultBranchSha(repo)
++	if err != nil {
++		return err
++	}
++	changes, err := getRepoChanges(repo, sha)
++	if err != nil {
++		return err
++	} else if changes == nil {
++		return nil
++	}
++
++	if err := indexer.Index(repo, sha, changes); err != nil {
++		return err
++	}
++
++	return repo.UpdateIndexerStatus(models.RepoIndexerTypeCode, sha)
++}
++
+ func processRepoIndexerOperationQueue(indexer Indexer) {
+ 	for {
+ 		select {
+@@ -35,7 +58,7 @@ func processRepoIndexerOperationQueue(indexer Indexer) {
+ 					log.Error("indexer.Delete: %v", err)
+ 				}
+ 			} else {
+-				if err = indexer.Index(op.repoID); err != nil {
++				if err = index(indexer, op.repoID); err != nil {
+ 					log.Error("indexer.Index: %v", err)
+ 				}
+ 			}
+@@ -60,9 +83,6 @@ func UpdateRepoIndexer(repo *models.Repository, watchers ...chan<- error) {
+ }
+ 
+ func addOperationToQueue(op repoIndexerOperation) {
+-	if !setting.Indexer.RepoIndexerEnabled {
+-		return
+-	}
+ 	select {
+ 	case repoIndexerOperationQueue <- op:
+ 		break
+diff --git a/modules/indexer/code/wrapped.go b/modules/indexer/code/wrapped.go
+index 926597a38..d83954487 100644
+--- a/modules/indexer/code/wrapped.go
++++ b/modules/indexer/code/wrapped.go
+@@ -7,6 +7,8 @@ package code
+ import (
+ 	"fmt"
+ 	"sync"
++
++	"code.gitea.io/gitea/models"
+ )
+ 
+ var (
+@@ -55,12 +57,12 @@ func (w *wrappedIndexer) get() (Indexer, error) {
+ 	return w.internal, nil
+ }
+ 
+-func (w *wrappedIndexer) Index(repoID int64) error {
++func (w *wrappedIndexer) Index(repo *models.Repository, sha string, changes *repoChanges) error {
+ 	indexer, err := w.get()
+ 	if err != nil {
+ 		return err
+ 	}
+-	return indexer.Index(repoID)
++	return indexer.Index(repo, sha, changes)
+ }
+ 
+ func (w *wrappedIndexer) Delete(repoID int64) error {
+diff --git a/modules/setting/indexer.go b/modules/setting/indexer.go
+index 4d4df6201..36785b9ab 100644
+--- a/modules/setting/indexer.go
++++ b/modules/setting/indexer.go
+@@ -36,7 +36,10 @@ var (
+ 		StartupTimeout        time.Duration
+ 
+ 		RepoIndexerEnabled bool
++		RepoType           string
+ 		RepoPath           string
++		RepoConnStr        string
++		RepoIndexerName    string
+ 		UpdateQueueLength  int
+ 		MaxIndexerFileSize int64
+ 		IncludePatterns    []glob.Glob
+@@ -52,6 +55,11 @@ var (
+ 		IssueQueueConnStr:     "",
+ 		IssueQueueBatchNumber: 20,
+ 
++		RepoIndexerEnabled: false,
++		RepoType:           "bleve",
++		RepoPath:           "indexers/repos.bleve",
++		RepoConnStr:        "",
++		RepoIndexerName:    "gitea_codes",
+ 		MaxIndexerFileSize: 1024 * 1024,
+ 		ExcludeVendored:    true,
+ 	}
+@@ -73,10 +81,14 @@ func newIndexerService() {
+ 	Indexer.IssueQueueBatchNumber = sec.Key("ISSUE_INDEXER_QUEUE_BATCH_NUMBER").MustInt(20)
+ 
+ 	Indexer.RepoIndexerEnabled = sec.Key("REPO_INDEXER_ENABLED").MustBool(false)
++	Indexer.RepoType = sec.Key("REPO_INDEXER_TYPE").MustString("bleve")
+ 	Indexer.RepoPath = sec.Key("REPO_INDEXER_PATH").MustString(path.Join(AppDataPath, "indexers/repos.bleve"))
+ 	if !filepath.IsAbs(Indexer.RepoPath) {
+ 		Indexer.RepoPath = path.Join(AppWorkPath, Indexer.RepoPath)
+ 	}
++	Indexer.RepoConnStr = sec.Key("REPO_INDEXER_CONN_STR").MustString("")
++	Indexer.RepoIndexerName = sec.Key("REPO_INDEXER_NAME").MustString("gitea_codes")
++
+ 	Indexer.IncludePatterns = IndexerGlobFromString(sec.Key("REPO_INDEXER_INCLUDE").MustString(""))
+ 	Indexer.ExcludePatterns = IndexerGlobFromString(sec.Key("REPO_INDEXER_EXCLUDE").MustString(""))
+ 	Indexer.ExcludeVendored = sec.Key("REPO_INDEXER_EXCLUDE_VENDORED").MustBool(true)
+diff --git a/templates/explore/code.tmpl b/templates/explore/code.tmpl
+index 418d669fe..ac7464344 100644
+--- a/templates/explore/code.tmpl
++++ b/templates/explore/code.tmpl
+@@ -28,37 +28,39 @@
+                 <div class="repository search">
+                     {{range $result := .SearchResults}}
+                         {{$repo := (index $.RepoMaps .RepoID)}}
+-                        <div class="diff-file-box diff-box file-content non-diff-file-content repo-search-result">
+-                            <h4 class="ui top attached normal header">
+-                                <span class="file"><a rel="nofollow" href="{{EscapePound $repo.HTMLURL}}">{{$repo.FullName}}</a> - {{.Filename}}</span>
+-                                <a class="ui basic grey tiny button" rel="nofollow" href="{{EscapePound $repo.HTMLURL}}/src/commit/{{$result.CommitID}}/{{EscapePound .Filename}}">{{$.i18n.Tr "repo.diff.view_file"}}</a>
+-                            </h4>
+-                            <div class="ui attached table segment">
+-                                <div class="file-body file-code code-view">
+-                                    <table>
+-                                        <tbody>
+-                                            <tr>
+-                                                <td class="lines-num">
+-                                                    {{range .LineNumbers}}
+-                                                        <a href="{{EscapePound $repo.HTMLURL}}/src/commit/{{$result.CommitID}}/{{EscapePound $result.Filename}}#L{{.}}"><span>{{.}}</span></a>
+-                                                    {{end}}
+-                                                </td>
+-                                                <td class="lines-code"><pre><code class="{{.HighlightClass}}"><ol class="linenums">{{.FormattedLines}}</ol></code></pre></td>
+-                                            </tr>
+-                                        </tbody>
+-                                    </table>
++                        {{if $repo}}
++                            <div class="diff-file-box diff-box file-content non-diff-file-content repo-search-result">
++                                <h4 class="ui top attached normal header">
++                                    <span class="file"><a rel="nofollow" href="{{EscapePound $repo.HTMLURL}}">{{$repo.FullName}}</a> - {{.Filename}}</span>
++                                    <a class="ui basic grey tiny button" rel="nofollow" href="{{EscapePound $repo.HTMLURL}}/src/commit/{{$result.CommitID}}/{{EscapePound .Filename}}">{{$.i18n.Tr "repo.diff.view_file"}}</a>
++                                </h4>
++                                <div class="ui attached table segment">
++                                    <div class="file-body file-code code-view">
++                                        <table>
++                                            <tbody>
++                                                <tr>
++                                                    <td class="lines-num">
++                                                        {{range .LineNumbers}}
++                                                            <a href="{{EscapePound $repo.HTMLURL}}/src/commit/{{$result.CommitID}}/{{EscapePound $result.Filename}}#L{{.}}"><span>{{.}}</span></a>
++                                                        {{end}}
++                                                    </td>
++                                                    <td class="lines-code"><pre><code class="{{.HighlightClass}}"><ol class="linenums">{{.FormattedLines}}</ol></code></pre></td>
++                                                </tr>
++                                            </tbody>
++                                        </table>
++                                    </div>
++                                </div>
++                                <div class="ui bottom attached table segment">
++                                    {{if $result.Language}}
++                                    <i class="color-icon" style="background-color: {{$result.Color}}"></i>{{$result.Language}}
++                                    {{end}}
++                                    &nbsp;
++                                    {{if not $result.UpdatedUnix.IsZero}}
++                                    <span class="ui small grey text pull right">{{$.i18n.Tr "explore.code_last_indexed_at" (TimeSinceUnix $result.UpdatedUnix $.i18n.Lang) | Safe}} &nbsp;</span>
++                                    {{end}}
+                                 </div>
+                             </div>
+-							<div class="ui bottom attached table segment">
+-                                {{if $result.Language}}
+-								<i class="color-icon" style="background-color: {{$result.Color}}"></i>{{$result.Language}}
+-                                {{end}}
+-                                &nbsp;
+-								{{if not $result.UpdatedUnix.IsZero}}
+-								<span class="ui small grey text pull right">{{$.i18n.Tr "explore.code_last_indexed_at" (TimeSinceUnix $result.UpdatedUnix $.i18n.Lang) | Safe}} &nbsp;</span>
+-								{{end}}
+-							</div>
+-                        </div>
++                        {{end}}
+                     {{end}}
+                 </div>
+ 			{{else}}
