@@ -65,7 +65,7 @@ index acdee1a56..c8e99b83d 100644
  - `MAX_FILE_SIZE`: **1048576**: 进行解析的源代码文件的最大长度，小于该值时才会索引。
  
 diff --git a/modules/indexer/code/bleve.go b/modules/indexer/code/bleve.go
-index 39171d17a..68a0d4830 100644
+index 39171d17a..3ab3eef74 100644
 --- a/modules/indexer/code/bleve.go
 +++ b/modules/indexer/code/bleve.go
 @@ -57,10 +57,10 @@ func addUnicodeNormalizeTokenFilter(m *mapping.IndexMappingImpl) error {
@@ -262,6 +262,16 @@ index 39171d17a..68a0d4830 100644
  }
  
  // Delete deletes indexes by ids
+@@ -384,8 +354,7 @@ func (b *BleveIndexer) Search(repoIDs []int64, language, keyword string, page, p
+ 		}
+ 		searchResults[i] = &SearchResult{
+ 			RepoID:      int64(hit.Fields["RepoID"].(float64)),
+-			StartIndex:  startIndex,
+-			EndIndex:    endIndex,
++			Positions:   []SearchResultPosition{{StartIndex: startIndex, EndIndex: endIndex}},
+ 			Filename:    filenameOfIndexerID(hit.ID),
+ 			Content:     hit.Fields["Content"].(string),
+ 			CommitID:    hit.Fields["CommitID"].(string),
 diff --git a/modules/indexer/code/bleve_test.go b/modules/indexer/code/bleve_test.go
 index 89cfceea2..0fa2757c9 100644
 --- a/modules/indexer/code/bleve_test.go
@@ -349,10 +359,10 @@ index 89cfceea2..0fa2757c9 100644
  }
 diff --git a/modules/indexer/code/elastic_search.go b/modules/indexer/code/elastic_search.go
 new file mode 100644
-index 000000000..5a2414c94
+index 000000000..456f10f7c
 --- /dev/null
 +++ b/modules/indexer/code/elastic_search.go
-@@ -0,0 +1,389 @@
+@@ -0,0 +1,397 @@
 +// Copyright 2020 The Gitea Authors. All rights reserved.
 +// Use of this source code is governed by a MIT-style
 +// license that can be found in the LICENSE file.
@@ -587,62 +597,67 @@ index 000000000..5a2414c94
 +		updateUnix := timeutil.TimeStamp(res["updated_at"].(float64))
 +		color := enry.GetColor(language)
 +
-+		fragments := []rune(content)
-+
 +		c, ok := hit.Highlight["content"]
 +		if ok && len(c) > 0 {
 +			for _, p := range c {
-+				s := strings.FieldsFunc(p, func(r rune) bool {
-+					if r == ':' || r == '-' {
-+						return true
-+					}
-+					return false
-+				})
++				s := strings.FieldsFunc(p, func(r rune) bool { return r == ':' })
 +
-+				if len(s) >= 4 {
-+					startFragment, e1 := strconv.Atoi(s[0])
-+					endFragment, e2 := strconv.Atoi(s[len(s) - 1])
-+					if e1 != nil || e2 != nil {
-+						continue
-+					}
-+
-+					startRuneIndex, e1 := strconv.Atoi(s[1])
-+					endRuneIndex, e2 := strconv.Atoi(s[len(s) - 2])
-+					if e1 != nil || e2 != nil {
-+						continue
-+					}
-+
-+					fragment := fragments[startFragment:endFragment]
-+
-+					startRuneIndex -= startFragment
-+					endRuneIndex -= startFragment
-+
-+					stringFragment := string(fragment)
-+					startIndex := 0
-+					endIndex := len(stringFragment)
-+
-+					idx := 0
-+					for cp, _ := range stringFragment {
-+						if idx == startRuneIndex {
-+							startIndex = cp
-+						} else if idx == endRuneIndex {
-+							endIndex = cp
-+						}
-+						idx++
-+					}
-+
-+					hits = append(hits, &SearchResult{
-+						RepoID:      repoID,
-+						Filename:    fileName,
-+						CommitID:    commitId,
-+						Content:     stringFragment,
-+						UpdatedUnix: updateUnix,
-+						Language:    language,
-+						StartIndex:  startIndex,
-+						EndIndex:    endIndex,
-+						Color:       color,
-+					})
++				if len(s) != 3 {
++					continue
 +				}
++
++				s = strings.FieldsFunc(s[1], func(r rune) bool { return r == ',' })
++
++				pm := map[int]int{}
++				pl := make([]SearchResultPosition, 0)
++
++				for _, r := range s {
++					rr := strings.FieldsFunc(r, func(r rune) bool { return r == '-' })
++					if len(rr) != 2 {
++						continue
++					}
++
++					start, e1 := strconv.Atoi(rr[0])
++					end, e2 := strconv.Atoi(rr[1])
++					if e1 != nil || e2 != nil {
++						continue
++					}
++
++					pm[start] = -1
++					pm[end] = -1
++
++					pl = append(pl, SearchResultPosition{StartIndex: start, EndIndex: end})
++				}
++
++				if len(pl) == 0 {
++					continue
++				}
++
++				idx := 0
++				for cp, _ := range content {
++					_, ok := pm[idx]
++					if ok {
++						pm[idx] = cp
++					}
++					idx++
++				}
++
++				for i := range pl {
++					p := &pl[i]
++					p.StartIndex = pm[p.StartIndex]
++					p.EndIndex = pm[p.EndIndex]
++				}
++
++				hits = append(hits, &SearchResult{
++					RepoID:      repoID,
++					Filename:    fileName,
++					CommitID:    commitId,
++					Content:     content,
++					UpdatedUnix: updateUnix,
++					Language:    language,
++					Positions:   pl,
++					Color:       color,
++				})
 +			}
 +		}
 +	}
@@ -669,7 +684,10 @@ index 000000000..5a2414c94
 +
 +// Search searches for codes and language stats by given conditions.
 +func (b *ElasticSearchIndexer) Search(repoIDs []int64, language, keyword string, page, pageSize int) (int64, []*SearchResult, []*SearchResultLanguages, error) {
-+	kwQuery := elastic.NewMultiMatchQuery(keyword, "content")
++	kwQuery := elastic.NewMultiMatchQuery(keyword, "content").Fuzziness("AUTO")
++	//kwQuery := elastic.NewQueryStringQuery(keyword).
++	//	Fuzziness("20").
++	//	AnalyzeWildcard(true)
 +	query := elastic.NewBoolQuery()
 +	query = query.Must(kwQuery)
 +	if len(repoIDs) > 0 {
@@ -785,10 +803,10 @@ index 000000000..a23093974
 +	testIndexer("elastic_search", t, indexer)
 +}
 diff --git a/modules/indexer/code/indexer.go b/modules/indexer/code/indexer.go
-index 3e90f769d..c99b09168 100644
+index 3e90f769d..84fabde30 100644
 --- a/modules/indexer/code/indexer.go
 +++ b/modules/indexer/code/indexer.go
-@@ -7,8 +7,11 @@ package code
+@@ -7,19 +7,27 @@ package code
  import (
  	"context"
  	"os"
@@ -800,7 +818,25 @@ index 3e90f769d..c99b09168 100644
  	"code.gitea.io/gitea/modules/graceful"
  	"code.gitea.io/gitea/modules/log"
  	"code.gitea.io/gitea/modules/setting"
-@@ -37,12 +40,33 @@ type SearchResultLanguages struct {
+ 	"code.gitea.io/gitea/modules/timeutil"
+ )
+ 
++// Highlight position in search result
++type SearchResultPosition struct {
++	StartIndex int
++	EndIndex   int
++}
++
+ // SearchResult result of performing a search in a repo
+ type SearchResult struct {
+ 	RepoID      int64
+-	StartIndex  int
+-	EndIndex    int
++	Positions   []SearchResultPosition
+ 	Filename    string
+ 	Content     string
+ 	CommitID    string
+@@ -37,12 +45,33 @@ type SearchResultLanguages struct {
  
  // Indexer defines an interface to indexer issues contents
  type Indexer interface {
@@ -835,7 +871,7 @@ index 3e90f769d..c99b09168 100644
  // Init initialize the repo indexer
  func Init() {
  	if !setting.Indexer.RepoIndexerEnabled {
-@@ -63,33 +87,59 @@ func Init() {
+@@ -63,33 +92,59 @@ func Init() {
  	waitChannel := make(chan time.Duration)
  	go func() {
  		start := time.Now()
@@ -1064,6 +1100,89 @@ index 94675559e..844003e1f 100644
  	select {
  	case repoIndexerOperationQueue <- op:
  		break
+diff --git a/modules/indexer/code/search.go b/modules/indexer/code/search.go
+index ca57b3ff8..2781dc2e2 100644
+--- a/modules/indexer/code/search.go
++++ b/modules/indexer/code/search.go
+@@ -72,32 +72,51 @@ func searchResult(result *SearchResult, startIndex, endIndex int) (*Result, erro
+ 	contentLines := strings.SplitAfter(result.Content[startIndex:endIndex], "\n")
+ 	lineNumbers := make([]int, len(contentLines))
+ 	index := startIndex
++	positions := result.Positions
++
+ 	for i, line := range contentLines {
+ 		var err error
+-		if index < result.EndIndex &&
+-			result.StartIndex < index+len(line) &&
+-			result.StartIndex < result.EndIndex {
+-			openActiveIndex := util.Max(result.StartIndex-index, 0)
+-			closeActiveIndex := util.Min(result.EndIndex-index, len(line))
++
++		err = writeStrings(&formattedLinesBuffer, `<li>`)
++		if err != nil {
++			return nil, err
++		}
++
++		pos := 0
++		end := index + len(line)
++
++		for len(positions) > 0 {
++			p := &positions[0]
++			if p.EndIndex <= p.StartIndex || p.EndIndex <= (index + pos) {
++				positions = positions[1:]
++				continue
++			}
++
++			if p.StartIndex >= end {
++				break
++			}
++
++			openActiveIndex := util.Max(p.StartIndex-index, pos)
++			closeActiveIndex := util.Min(p.EndIndex-index, len(line))
++
+ 			err = writeStrings(&formattedLinesBuffer,
+-				`<li>`,
+-				html.EscapeString(line[:openActiveIndex]),
++				html.EscapeString(line[pos:openActiveIndex]),
+ 				`<span class='active'>`,
+ 				html.EscapeString(line[openActiveIndex:closeActiveIndex]),
+ 				`</span>`,
+-				html.EscapeString(line[closeActiveIndex:]),
+-				`</li>`,
+-			)
+-		} else {
+-			err = writeStrings(&formattedLinesBuffer,
+-				`<li>`,
+-				html.EscapeString(line),
+-				`</li>`,
+ 			)
++
++			if err != nil {
++				return nil, err
++			}
++
++			pos = closeActiveIndex
+ 		}
+-		if err != nil {
+-			return nil, err
+-		}
++
++		err = writeStrings(&formattedLinesBuffer,
++			html.EscapeString(line[pos:]),
++			`</li>`,
++		)
+ 
+ 		lineNumbers[i] = startLineNum + i
+ 		index += len(line)
+@@ -129,7 +148,7 @@ func PerformSearch(repoIDs []int64, language, keyword string, page, pageSize int
+ 	displayResults := make([]*Result, len(results))
+ 
+ 	for i, result := range results {
+-		startIndex, endIndex := indices(result.Content, result.StartIndex, result.EndIndex)
++		startIndex, endIndex := indices(result.Content, result.Positions[0].StartIndex, result.Positions[len(result.Positions)-1].EndIndex)
+ 		displayResults[i], err = searchResult(result, startIndex, endIndex)
+ 		if err != nil {
+ 			return 0, nil, nil, err
 diff --git a/modules/indexer/code/wrapped.go b/modules/indexer/code/wrapped.go
 index 926597a38..d83954487 100644
 --- a/modules/indexer/code/wrapped.go
