@@ -359,10 +359,10 @@ index 89cfceea2..0fa2757c9 100644
  }
 diff --git a/modules/indexer/code/elastic_search.go b/modules/indexer/code/elastic_search.go
 new file mode 100644
-index 000000000..456f10f7c
+index 000000000..0b648f1c5
 --- /dev/null
 +++ b/modules/indexer/code/elastic_search.go
-@@ -0,0 +1,397 @@
+@@ -0,0 +1,399 @@
 +// Copyright 2020 The Gitea Authors. All rights reserved.
 +// Use of this source code is governed by a MIT-style
 +// license that can be found in the LICENSE file.
@@ -684,10 +684,12 @@ index 000000000..456f10f7c
 +
 +// Search searches for codes and language stats by given conditions.
 +func (b *ElasticSearchIndexer) Search(repoIDs []int64, language, keyword string, page, pageSize int) (int64, []*SearchResult, []*SearchResultLanguages, error) {
-+	kwQuery := elastic.NewMultiMatchQuery(keyword, "content").Fuzziness("AUTO")
-+	//kwQuery := elastic.NewQueryStringQuery(keyword).
-+	//	Fuzziness("20").
-+	//	AnalyzeWildcard(true)
++	kwQuery := elastic.NewQueryStringQuery(keyword).
++		Field("content").
++		Fuzziness("AUTO").
++		AnalyzeWildcard(true).
++		Lenient(true)
++
 +	query := elastic.NewBoolQuery()
 +	query = query.Must(kwQuery)
 +	if len(repoIDs) > 0 {
