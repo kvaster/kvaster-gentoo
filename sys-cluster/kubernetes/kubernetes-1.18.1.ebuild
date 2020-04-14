@@ -48,6 +48,7 @@ RDEPEND="${COMMON_DEPEND}
 RESTRICT+=" test"
 
 PATCHES=(
+	"${FILESDIR}"/gentoo.patch
 	"${FILESDIR}"/no-proxy-upgrade.patch
 )
 
