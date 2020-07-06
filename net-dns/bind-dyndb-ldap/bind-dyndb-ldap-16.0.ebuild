@@ -23,8 +23,8 @@ SLOT="0"
 IUSE=""
 
 DEPEND="
-	>=net-dns/bind-9.14.8[dlz]
-	<net-dns/bind-9.15.0[dlz]
+	>=net-dns/bind-9.16.0[dlz]
+	<net-dns/bind-9.17.0[dlz]
 	dev-libs/cyrus-sasl:=
 	virtual/krb5
 "
