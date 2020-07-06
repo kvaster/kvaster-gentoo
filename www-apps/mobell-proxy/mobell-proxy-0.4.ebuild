@@ -18,8 +18,7 @@ EGO_VENDOR=(
 	"github.com/pkg/errors v0.8.1"
 )
 
-SRC_URI="https://github.com/kvaster/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
-	$(go-module_vendor_uris)"
+SRC_URI="https://github.com/kvaster/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 pkg_setup() {
 	enewgroup mobell-proxy
