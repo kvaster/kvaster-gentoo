@@ -78,7 +78,6 @@ PDEPEND="
 REQUIRED_USE="javafx? ( alsa !headless-awt )"
 
 PATCHES=(
-	"${FILESDIR}/openjdk-11-make43.patch"
 	"${FILESDIR}/gcc-10-part-1.patch"
 	"${FILESDIR}/gcc-10-part-2.patch"
 	"${FILESDIR}/gcc-10-part-3.patch"

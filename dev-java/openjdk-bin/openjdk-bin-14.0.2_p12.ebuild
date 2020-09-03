@@ -74,7 +74,7 @@ src_install() {
 	fi
 
 	if ! use examples ; then
-		rm -vr demo/ || die
+		rm -vrf demo/
 	fi
 
 	if use headless-awt ; then
