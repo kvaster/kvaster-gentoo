@@ -61,6 +61,9 @@ src_install() {
 	fperms -R 0750 /etc/knot-resolver
 
 	keepdir /var/log/knot-resolver
+	keepdir /var/lib/knot-resolver
+	fowners -R knot-resolver:knot-resolver /var/lib/knot-resolver
+
 	newinitd "${FILESDIR}"/kresd.initd kresd
 	newconfd "${FILESDIR}"/kresd.confd kresd
 }
