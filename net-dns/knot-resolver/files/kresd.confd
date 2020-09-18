@@ -1,0 +1,4 @@
+## knot-resolver defaults
+
+#kresd_config="/etc/knot-resolver/kresd.conf"
+#kresd_workdir="/var/lib/knot-resolver"

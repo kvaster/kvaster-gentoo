@@ -1,0 +1,27 @@
+#!/sbin/openrc-run
+# Copyright 2020 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="kresd daemon"
+description="knot-resolver daemon - recursive dns server"
+kresd_config="${kresd_config:-/etc/knot-resolver/kresd.conf}"
+kresd_workdir="${kresd_workdir:-/var/lib/knot-resolver}"
+command=/usr/sbin/kresd
+command_args="${command_args:--qn --config=${kresd_config} ${kresd_workdir}}"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+
+logfile=${logfile:-/var/log/knot-resolver/${SVCNAME}.log}
+output_log=${output_log:-${logfile}}
+error_log=${error_log:-${logfile}}
+
+command_background=true
+retry="${retry:-TERM/20/KILL/5}"
+
+ulimit -l unlimited
+ulimit -n 524288
+
+depend() {
+	need net
+	after net
+}
+
