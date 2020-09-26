@@ -10,7 +10,7 @@ SRC_URI="https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz -> ${P}.
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm64"
 
 AGENT="kubelet"
 CLI="kubeadm kubectl"
@@ -20,7 +20,6 @@ for x in ${AGENT} ${CLI} ${SERVICES}; do
 	IUSE+=" +${x}"
 done
 
-BDEPEND=">=dev-lang/go-1.13"
 COMMON_DEPEND="
 	kube-apiserver? (
 		acct-group/kube-apiserver
@@ -46,11 +45,6 @@ RDEPEND="${COMMON_DEPEND}
 	!sys-cluster/kube-scheduler"
 
 RESTRICT+=" test"
-
-PATCHES=(
-	"${FILESDIR}"/gentoo.patch
-	"${FILESDIR}"/no-proxy-upgrade.patch
-)
 
 src_compile() {
 	local x
