@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
 AGENT="kubelet"
-CLI="kubeadm kubectl"
+CLI="kubectl"
 SERVICES="kube-apiserver kube-controller-manager kube-proxy kube-scheduler"
 IUSE="hardened"
 for x in ${AGENT} ${CLI} ${SERVICES}; do
@@ -36,7 +36,6 @@ COMMON_DEPEND="
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}
 	kube-proxy? ( net-firewall/conntrack-tools )
-	!sys-cluster/kubeadm
 	!sys-cluster/kubectl
 	!sys-cluster/kubelet
 	!sys-cluster/kube-apiserver
@@ -84,6 +83,16 @@ src_install() {
 		fi
 		if [[ $x =~ .*apiserver|.*controller-manager|.*scheduler ]]; then
 			fowners ${x}:${x} /var/log/${x}
+		fi
+	done
+}
+
+pkg_postinst() {
+	local x
+	for x in ${REPLACING_VERSIONS}; do
+		if ver_test $x -le 1.18.8; then
+			ewarn "kubeadm is now packaged as sys-cluster/kubeadm"
+			ewarn "see https://bugs.gentoo.org/741572"
 		fi
 	done
 }
