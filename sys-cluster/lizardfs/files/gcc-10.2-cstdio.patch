@@ -1,0 +1,12 @@
+diff --git a/src/mount/fuse/daemonize.cc b/src/mount/fuse/daemonize.cc
+index 8d0ccf1..8018923 100644
+--- a/src/mount/fuse/daemonize.cc
++++ b/src/mount/fuse/daemonize.cc
+@@ -25,6 +25,7 @@
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
++#include <cstdio>
+ 
+ static int gWaiter[2] = {-1, -1};
+ 

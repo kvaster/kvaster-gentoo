@@ -33,6 +33,8 @@ RDEPEND="
 	>dev-libs/spdlog-0.14.0"
 DEPEND="${RDEPEND}"
 
+PATCHES=( "$FILESDIR"/gcc-10.2-cstdio.patch )
+
 pkg_setup() {
 	enewgroup mfs
 	enewuser mfs -1 -1 -1 mfs
