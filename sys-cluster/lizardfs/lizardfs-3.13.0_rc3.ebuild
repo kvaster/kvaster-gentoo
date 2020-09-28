@@ -20,7 +20,7 @@ EGIT_COMMIT="${MY_PV}"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86 ~amd64"
-IUSE="cgi +fuse fuse3 static-libs -devel"
+IUSE="cgi fuse +fuse3 static-libs -devel"
 
 RDEPEND="
 	cgi? ( dev-lang/python )
