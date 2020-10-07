@@ -72,6 +72,7 @@ src_install() {
 	dodir "/etc/lizardfs"
 	insinto "/etc/lizardfs"
 	doins "${WORKDIR}/${P}"/src/data/*.cfg
+	doins "${WORKDIR}/${P}_build"/src/data/*.cfg
 
 	diropts -m0750 -o mfs -g mfs
 	dodir "/var/lib/mfs"
