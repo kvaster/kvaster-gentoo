@@ -67,6 +67,7 @@ start_roles() {
 
 start() {
 	ebegin "Starting mfs node"
+	ulimit -n 100000
 	chkconfig && start_roles
 	eend $?
 }

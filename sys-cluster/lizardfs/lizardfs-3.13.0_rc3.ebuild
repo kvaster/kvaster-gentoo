@@ -57,8 +57,8 @@ src_install() {
 	newconfd "${FILESDIR}/mfs.confd" mfs
 
 	if use cgi; then
-		newinitd "${FILESDIR}/mfscgiserver.initd" mfscgiserver
-		newconfd "${FILESDIR}/mfscgiserver.confd" mfscgiserver
+		newinitd "${FILESDIR}/lizardfs-cgiserver.initd" lizardfs-cgiserver
+		newconfd "${FILESDIR}/lizardfs-cgiserver.confd" lizardfs-cgiserver
 	fi
 
 	dodir /etc/pam.d

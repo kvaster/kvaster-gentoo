@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+
+PIDFILE=/var/run/lizardfs-cgiserver.pid
+
+depend() {
+        need net
+}
+
+start() {
+        ebegin "Starting lizardfs CGI server"
+        start-stop-daemon --start --quiet --exec /usr/sbin/lizardfs-cgiserver \
+        --pidfile "${PIDFILE}" --make-pidfile --background \
+        -- -H ${BIND_HOST} -P ${BIND_PORT}
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping lizardfs CGI server"
+        start-stop-daemon --stop -q --pidfile "${PIDFILE}"
+        eend $?
+}
