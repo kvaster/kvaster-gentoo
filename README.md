@@ -7,3 +7,6 @@ TODO:
 [ ] Remove syncthing-1.9 after upgrade (not compatible with go-1.15)
 [ ] Remove net-dns/knot-3.0.0 when it will be available in mainline
 
+TO BE REMOVED:
+[ ] Chromium - 87 version have vaapi support in portage mainline
+
