@@ -80,9 +80,9 @@ src_prepare() {
 		-e "s#^TRUSTED_FACETS =#;TRUSTED_FACETS =#"
 	)
 
-	sed -i "${sedcmds[@]}" custom/conf/app.ini.sample || die
+	sed -i "${sedcmds[@]}" custom/conf/app.example.ini || die
 	if use sqlite ; then
-		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.ini.sample || die
+		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.example.ini || die
 	fi
 }
 
@@ -120,7 +120,7 @@ src_install() {
 	systemd_newunit "${FILESDIR}"/gitea.service-r2 gitea.service
 
 	insinto /etc/gitea
-	newins custom/conf/app.ini.sample app.ini
+	newins custom/conf/app.example.ini app.ini
 	if use acct ; then
 		fowners root:git /etc/gitea/{,app.ini}
 		fperms g+w,o-rwx /etc/gitea/{,app.ini}
