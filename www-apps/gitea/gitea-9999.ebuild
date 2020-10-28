@@ -42,8 +42,6 @@ RDEPEND="${DEPEND}
 DOCS=( custom/conf/app.ini.sample CONTRIBUTING.md README.md )
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
-PATCHES=( "${FILESDIR}/elastic-code.patch" )
-
 gitea_make() {
 	local gitea_tags=(
 		bindata

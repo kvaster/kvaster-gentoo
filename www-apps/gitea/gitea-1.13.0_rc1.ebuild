@@ -18,7 +18,7 @@ DESCRIPTION="A painless self-hosted Git service"
 HOMEPAGE="https://gitea.io"
 
 if [[ ${PV} != 9999* ]] ; then
-	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV/_/-}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
@@ -84,11 +84,11 @@ src_prepare() {
 	if use sqlite ; then
 		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.ini.sample || die
 	fi
-
-	gitea_make generate
 }
 
 src_compile() {
+	gitea_make frontend
+	gitea_make generate
 	gitea_make build
 }
 
