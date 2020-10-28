@@ -120,10 +120,10 @@ src_install() {
 	systemd_newunit "${FILESDIR}"/gitea.service-r2 gitea.service
 
 	insinto /etc/gitea
-	newins custom/conf/app.example.ini app.ini
+	newins custom/conf/app.example.ini app.example.ini
 	if use acct ; then
-		fowners root:git /etc/gitea/{,app.ini}
-		fperms g+w,o-rwx /etc/gitea/{,app.ini}
+		fowners root:git /etc/gitea/{,app.example.ini}
+		fperms g+w,o-rwx /etc/gitea/{,app.example.ini}
 
 		diropts -m0750 -o git -g git
 		keepdir /var/lib/gitea /var/lib/gitea/custom /var/lib/gitea/data
