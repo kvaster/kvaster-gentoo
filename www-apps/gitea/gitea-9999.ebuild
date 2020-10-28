@@ -18,7 +18,7 @@ DESCRIPTION="A painless self-hosted Git service"
 HOMEPAGE="https://gitea.io"
 
 if [[ ${PV} != 9999* ]] ; then
-	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV/_/-}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
@@ -39,7 +39,7 @@ RDEPEND="${DEPEND}
 	)
 	dev-vcs/git"
 
-DOCS=( custom/conf/app.ini.sample CONTRIBUTING.md README.md )
+DOCS=( custom/conf/app.example.ini CONTRIBUTING.md README.md )
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
 gitea_make() {

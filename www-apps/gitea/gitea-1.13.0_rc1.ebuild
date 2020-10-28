@@ -39,7 +39,7 @@ RDEPEND="${DEPEND}
 	)
 	dev-vcs/git"
 
-DOCS=( custom/conf/app.ini.sample CONTRIBUTING.md README.md )
+DOCS=( custom/conf/app.example.ini CONTRIBUTING.md README.md )
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
 gitea_make() {
