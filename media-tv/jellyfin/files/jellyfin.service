@@ -1,0 +1,13 @@
+[Unit]
+Description = Jellyfin Media Server
+After = network.target
+
+[Service]
+Type = simple
+User = jellyfin
+ExecStart = /usr/bin/jellyfin ${JELLYFIN_SERVICE_OPT} ${JELLYFIN_NOWEBAPP_OPT} ${JELLYFIN_ADD_OPTS}
+Restart = on-failure
+TimeoutSec = 15
+
+[Install]
+WantedBy = multi-user.target
