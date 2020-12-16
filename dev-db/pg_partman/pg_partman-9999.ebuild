@@ -16,14 +16,14 @@ HOMEPAGE="https://github.com/pgpartman/pg_partman"
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/pgpartman/${PN}.git"
+	KEYWORDS=""
 else
-	SRC_URI="https://github.com/pgpartman/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/pgpartman/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~amd64 ~x86"
 fi
 
 LICENSE="AGPL-3"
 SLOT="0"
-#KEYWORDS="~amd64 ~x86"
-KEYWORDS=""
 IUSE=""
 REQUIRED_USE="${POSTGRES_REQ_USE}"
 
