@@ -6,8 +6,8 @@ EAPI=7
 inherit user
 
 DESCRIPTION="Lizardfs kubernetes flexvolume driver"
-HOMEPAGE="https://github.com/TerraTech/lizardfs-flexvolume"
-SRC_URI="https://github.com/TerraTech/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://github.com/kvaster/lizardfs-flexvolume"
+SRC_URI="https://github.com/kvaster/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
