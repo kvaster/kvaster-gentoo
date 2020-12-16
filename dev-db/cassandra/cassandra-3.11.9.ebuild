@@ -4,7 +4,7 @@
 # This ebuild come from bangert overlay
 inherit eutils user
 
-JMX_PRO_JA_VER="0.9"
+JMX_PRO_JA_VER="0.10"
 
 VER="${PV/_/-}"
 VER_NS=${VER%-*}
@@ -57,10 +57,10 @@ src_install() {
 
 	newinitd "${FILESDIR}"/${CONF}/cassandra.initd cassandra
 	newconfd "${FILESDIR}"/${CONF}/cassandra.confd cassandra
-	
+
 	insinto /etc/cassandra
 	doins -r conf/*
-	
+
 	rm -rf conf
 
 	dodir ${CASSANDRA_HOME}
@@ -103,6 +103,10 @@ src_install() {
 	# Add xz compression
 	insinto ${CASSANDRA_HOME}/lib
 	doins "${FILESDIR}"/${CONF}/xz/*
+
+	# Add zstd compression (backport from 4.x branch)
+	insinto ${CASSANDRA_HOME}/lib
+	doins "${FILESDIR}"/${CONF}/zstd/*
 
 	# Add /jmx_prometheus_javaagent
 	doins ${DISTDIR}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar
