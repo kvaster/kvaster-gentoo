@@ -18,7 +18,7 @@ DESCRIPTION="A painless self-hosted Git service"
 HOMEPAGE="https://gitea.io"
 
 if [[ ${PV} != 9999* ]] ; then
-	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV/_/-}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
@@ -39,7 +39,7 @@ RDEPEND="${DEPEND}
 	)
 	dev-vcs/git"
 
-DOCS=( custom/conf/app.ini.sample CONTRIBUTING.md README.md )
+DOCS=( custom/conf/app.example.ini CONTRIBUTING.md README.md )
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 
 gitea_make() {
@@ -80,9 +80,9 @@ src_prepare() {
 		-e "s#^TRUSTED_FACETS =#;TRUSTED_FACETS =#"
 	)
 
-	sed -i "${sedcmds[@]}" custom/conf/app.ini.sample || die
+	sed -i "${sedcmds[@]}" custom/conf/app.example.ini || die
 	if use sqlite ; then
-		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.ini.sample || die
+		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.example.ini || die
 	fi
 }
 
@@ -120,10 +120,10 @@ src_install() {
 	systemd_newunit "${FILESDIR}"/gitea.service-r2 gitea.service
 
 	insinto /etc/gitea
-	newins custom/conf/app.ini.sample app.ini
+	newins custom/conf/app.example.ini app.example.ini
 	if use acct ; then
-		fowners root:git /etc/gitea/{,app.ini}
-		fperms g+w,o-rwx /etc/gitea/{,app.ini}
+		fowners root:git /etc/gitea/{,app.example.ini}
+		fperms g+w,o-rwx /etc/gitea/{,app.example.ini}
 
 		diropts -m0750 -o git -g git
 		keepdir /var/lib/gitea /var/lib/gitea/custom /var/lib/gitea/data
