@@ -53,14 +53,9 @@ gitea_make() {
 		"-X code.gitea.io/gitea/modules/setting.CustomPath=${EPREFIX}/var/lib/gitea/custom"
 		"-X code.gitea.io/gitea/modules/setting.AppWorkPath=${EPREFIX}/var/lib/gitea"
 	)
-	local makeenv=(
-		TAGS="${gitea_tags[@]}"
-		LDFLAGS="-extldflags \"${LDFLAGS}\" ${gitea_settings[@]}"
-		GOPATH="${WORKDIR}/${P}:$(get_golibdir_gopath)"
-	)
-	[[ ${PV} != 9999* ]] && makeenv+=("DRONE_TAG=${PV}")
+	[[ ${PV} != 9999* ]] && DRONE="DRONE_TAG=${PV}"
 
-	env "${makeenv[@]}" emake "$@"
+	env TAGS="${gitea_tags[*]}" LDFLAGS="-extldflags \"${LDFLAGS}\" ${gitea_settings[*]}" GOPATH="${WORKDIR}/${P}:$(get_golibdir_gopath)" "${DRONE}" emake "$@"
 }
 
 src_prepare() {
