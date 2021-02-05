@@ -26,7 +26,7 @@ pkg_setup() {
 }
 
 src_install() {
-	dodir "${ANDROID_SDK_DIR}"
+	keepdir "${ANDROID_SDK_DIR}"
 	fowners -R root:android "${ANDROID_SDK_DIR}"
 	fperms -R 0775 "${ANDROID_SDK_DIR}"
 
