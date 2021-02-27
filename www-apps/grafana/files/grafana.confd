@@ -4,6 +4,6 @@ GRAFANA_CONFIG="/etc/grafana/grafana.ini"
 GRAFANA_DATADIR="/var/lib/grafana"
 GRAFANA_LOGDIR="/var/log/grafana"
 
-GRAFANA_OPTS="-config=${GRAFANA_CONFIG}
-	cfg:default.paths.data=${GRAFANA_DATADIR}
+GRAFANA_OPTS="-config=${GRAFANA_CONFIG} \
+	cfg:default.paths.data=${GRAFANA_DATADIR} \
 	cfg:default.paths.logs=${GRAFANA_LOGDIR}"
