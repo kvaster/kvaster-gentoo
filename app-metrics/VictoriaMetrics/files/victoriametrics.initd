@@ -1,0 +1,24 @@
+#!/sbin/openrc-run
+# Copyright 2021 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="VictoriaMetrics daemon"
+description="VictoriaMetrics - time series database and monitoring solution"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-vmetrics:vmetrics}
+
+user=${user:-vmetrics}
+group=${group:-vmetrics}
+
+log_file="/var/log/victoriametrics/victoriametrics.log"
+
+command=/usr/bin/victoriametrics
+retry="${retry:-TERM/20/KILL/5}"
+
+command_background="true"
+start_stop_daemon_args="--user ${user} --group ${group} --stdout ${log_file} --stderr ${log_file}"
+
+depend() {
+	need net
+	after net
+}

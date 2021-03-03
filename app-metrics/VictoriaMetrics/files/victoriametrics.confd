@@ -1,0 +1,2 @@
+# Default args for victoriametrics
+command_args="-storageDataPath /var/lib/victoriametrics -retentionPeriod 1"
