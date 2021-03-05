@@ -17,6 +17,8 @@ EGO_PN="code.gitea.io/gitea"
 DESCRIPTION="A painless self-hosted Git service"
 HOMEPAGE="https://gitea.io"
 
+RESTRICT="mirror network-sandbox"
+
 if [[ ${PV} != 9999* ]] ; then
 	SRC_URI="https://github.com/go-gitea/gitea/archive/v${PV/_/-}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
