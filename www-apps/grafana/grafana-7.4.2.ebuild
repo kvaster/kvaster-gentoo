@@ -21,7 +21,7 @@ DEPEND="!www-apps/grafana-bin
 	acct-group/grafana
 	acct-user/grafana
 	media-libs/fontconfig
-	=net-libs/nodejs-14*[icu]
+	>=net-libs/nodejs-14[icu]
 	sys-apps/yarn"
 
 QA_PRESTRIPPED="usr/bin/grafana-*"
