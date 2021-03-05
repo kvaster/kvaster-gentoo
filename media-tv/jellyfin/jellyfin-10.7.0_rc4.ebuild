@@ -1,7 +1,7 @@
 # Copyright 2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit systemd
 
@@ -28,14 +28,15 @@ RDEPEND="${DEPEND}
 		app-crypt/mit-krb5
 		dev-libs/icu
 		dev-libs/openssl"
-BDEPEND="dev-dotnet/dotnetcore-sdk-bin:3.1
+BDEPEND="dev-dotnet/dotnetcore-sdk-bin
 		sys-apps/yarn"
 
 METAFILETOBUILD="MediaBrowser.sln"
 
+S="${WORKDIR}/${PN}-${PV/_/-}"
 
 src_compile() {
-	cd ${WORKDIR}/${PN}-web-${PV}
+	cd ${WORKDIR}/${PN}-web-${PV/_/-}
 	yarn install || die
 	cp -r dist/. ${S}/MediaBrowser.WebDashboard/jellyfin-web
 	cd ${S}
