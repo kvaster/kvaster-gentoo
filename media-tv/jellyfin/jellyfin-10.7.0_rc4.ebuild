@@ -38,6 +38,7 @@ S="${WORKDIR}/${PN}-${PV/_/-}"
 src_compile() {
 	cd ${WORKDIR}/${PN}-web-${PV/_/-}
 	yarn install || die
+	mkdir -p ${S}/MediaBrowser.WebDashboard/jellyfin-web
 	cp -r dist/. ${S}/MediaBrowser.WebDashboard/jellyfin-web
 	cd ${S}
 	export DOTNET_CLI_TELEMETRY_OPTOUT=1
