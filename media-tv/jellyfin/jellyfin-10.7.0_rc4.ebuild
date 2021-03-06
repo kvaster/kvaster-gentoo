@@ -17,6 +17,7 @@ KEYWORDS="~amd64"
 
 DEPEND="!media-tv/jellyfin-bin"
 RDEPEND="${DEPEND}
+		=media-tv/jellyfin-web-${PV}
 		acct-group/jellyfin
 		acct-user/jellyfin
 		media-video/ffmpeg[fontconfig,gmp,libass,libdrm,truetype,fribidi,vorbis,vdpau,vaapi,x264,x265,webp,bluray,zvbi,mp3,opus,theora]
@@ -28,26 +29,19 @@ RDEPEND="${DEPEND}
 		app-crypt/mit-krb5
 		dev-libs/icu
 		dev-libs/openssl"
-BDEPEND="dev-dotnet/dotnetcore-sdk-bin
-		sys-apps/yarn"
+BDEPEND="dev-dotnet/dotnetcore-sdk-bin"
 
 METAFILETOBUILD="MediaBrowser.sln"
 
 S="${WORKDIR}/${PN}-${PV/_/-}"
 
 src_compile() {
-	cd ${WORKDIR}/${PN}-web-${PV/_/-}
-	yarn install || die
-	mkdir -p ${S}/MediaBrowser.WebDashboard/jellyfin-web
-	cp -r dist/. ${S}/MediaBrowser.WebDashboard/jellyfin-web
-	cd ${S}
 	export DOTNET_CLI_TELEMETRY_OPTOUT=1
 	dotnet build --configuration Release Jellyfin.Server || die
 	dotnet publish --configuration Release Jellyfin.Server --output ${S}/bin --self-contained --runtime linux-x64 || die
 }
 
 src_install() {
-
 	insinto /etc/${PN}
 	doins ${FILESDIR}/logging.json
 	fowners -R "${PN}:${PN}" "/etc/${PN}"

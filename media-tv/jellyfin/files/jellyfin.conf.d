@@ -15,9 +15,10 @@ JELLYFIN_CACHE_DIR="/var/cache/jellyfin"
 #JELLYFIN_SERVICE_OPT="--service"
 
 # [OPTIONAL] run Jellyfin without the web app
-#JELLYFIN_NOWEBAPP_OPT="--noautorunwebapp"
+#JELLYFIN_WEBAPP_OPT="--noautorunwebapp"
+JELLYFIN_WEBAPP_OPT="-w /usr/share/jellyfin/web"
 
 # Application username
 JELLYFIN_USER="jellyfin"
 # Full application command
-JELLYFIN_ARGS="$JELLYFIN_SERVICE_OPT $JELLFIN_NOWEBAPP_OPT $JELLYFIN_ADD_OPTS"
+JELLYFIN_ARGS="$JELLYFIN_SERVICE_OPT $JELLYFIN_WEBAPP_OPT $JELLFIN_NOWEBAPP_OPT $JELLYFIN_ADD_OPTS"
