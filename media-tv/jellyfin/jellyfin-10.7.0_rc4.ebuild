@@ -15,6 +15,8 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64"
 
+RESTRICT="mirror network-sandbox"
+
 DEPEND="!media-tv/jellyfin-bin"
 RDEPEND="${DEPEND}
 		=media-tv/jellyfin-web-${PV}
