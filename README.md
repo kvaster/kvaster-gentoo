@@ -2,11 +2,6 @@
 
 This repository is my own gentoo overlay - collection of usefull (at least for me) ebuilds.
 
-TODO:
-[ ] Remove kubernetes-1.9.1 after upgrade
-[ ] Remove syncthing-1.9 after upgrade (not compatible with go-1.15)
-[ ] Remove net-dns/knot-3.0.0 when it will be available in mainline
-
-TO BE REMOVED:
-[ ] Chromium - 87 version have vaapi support in portage mainline
-
+To be removed when ruby deps will be updated:
+[ ] dev-libs/ocl-icd
+[ ] dev-qt/qtwebkit
