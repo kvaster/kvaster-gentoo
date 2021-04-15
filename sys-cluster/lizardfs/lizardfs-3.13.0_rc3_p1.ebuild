@@ -10,7 +10,8 @@ DESCRIPTION="LizardFS is an Open Source Distributed File System licenced under G
 HOMEPAGE="http://lizardfs.org"
 SRC_URI=""
 
-MY_PV="${PV/_/-}"
+#MY_PV="${PV/_/-}"
+MY_PV="dd24131"
 
 EGIT_REPO_URI="https://github.com/lizardfs/lizardfs.git"
 HOMEPAGE="http://lizardfs.org"
