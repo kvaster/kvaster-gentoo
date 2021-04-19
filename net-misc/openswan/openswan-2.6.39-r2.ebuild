@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-misc/openswan/openswan-2.6.39-r1.ebuild,v 1.4 2014/08/10 20:46:00 slyfox Exp $
 
-EAPI="4"
+EAPI="7"
 
 inherit eutils linux-info systemd toolchain-funcs flag-o-matic
 
 DESCRIPTION="Open Source implementation of IPsec for the Linux operating system (was SuperFreeS/WAN)"
 HOMEPAGE="http://www.openswan.org/"
-SRC_URI="https://download.openswan.org/openswan/old/openswan-2.6/${P}.tar.gz"
+SRC_URI="https://github.com/xelerance/Openswan/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2 BSD-4 DES RSA"
 SLOT="0"
@@ -16,6 +16,8 @@ KEYWORDS="amd64 ~ppc ~sparc x86"
 IUSE="caps curl ldap pam ssl extra-algorithms weak-algorithms nocrypto-algorithms ms-bad-proposal nss"
 
 RESTRICT="test" # requires user mode linux setup
+
+S="${WORKDIR}/Openswan-${PV}"
 
 COMMON_DEPEND="!net-misc/strongswan
 	dev-libs/gmp
@@ -66,7 +68,11 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-gentoo.patch
+	eapply_user
+
+	eapply "${FILESDIR}"/gcc9.patch || die
+
+	eapply "${FILESDIR}"/${P}-gentoo.patch || die
 	use ms-bad-proposal && epatch "${FILESDIR}"/${PN}-${PV%.*}-allow-ms-bad-proposal.patch
 
 	find . -type f -regex '.*[.]\([1-8]\|html\|xml\)' -exec sed -i \

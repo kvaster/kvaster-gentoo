@@ -1,0 +1,28 @@
+--- a/programs/tncfg/tncfg.c
++++ b/programs/tncfg/tncfg.c
+@@ -47,6 +47,12 @@
+ 
+ #include "openswan/ipsec_tunnel.h"
+ 
++#define STRNCPY_TERMINATED(DEST, SRC, N) \
++  do { \
++    strncpy (DEST, SRC, N - 1); \
++    DEST[N - 1] = '\0'; \
++  } while (0)
++
+ char *progname;
+ 
+ static void
+@@ -230,10 +230,10 @@ main(int argc, char *argv[])
+ 			break;
+ 
+ 		case 'V':
+-			strncpy(ifr.ifr_name, optarg, sizeof(ifr.ifr_name));
++			STRNCPY_TERMINATED(ifr.ifr_name, optarg, sizeof(ifr.ifr_name));
+ 			break;
+ 		case 'P':
+-			strncpy(shc.cf_name, optarg, sizeof(shc.cf_name));
++			STRNCPY_TERMINATED(shc.cf_name, optarg, sizeof(shc.cf_name));
+ 			break;
+ 		case 'l':
+ 			progname = malloc(strlen(argv[0])
