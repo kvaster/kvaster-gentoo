@@ -13,3 +13,6 @@ To be removed when available in main repo
 [ ] media-libs/gstreamer
 [ ] media-libs/gst-*
 [ ] media-plugins/gst-*
+
+To be removed when mongodb+gcc11 will be fixed in mainline
+[ ] dev-db/mongodb
