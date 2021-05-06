@@ -9,3 +9,7 @@ To be removed when ruby deps will be updated:
 To be removed when ebuild in main repo will be available:
 [ ] www-apps/gitea
 
+To be removed when available in main repo
+[ ] media-libs/gstreamer
+[ ] media-libs/gst-*
+[ ] media-plugins/gst-*
