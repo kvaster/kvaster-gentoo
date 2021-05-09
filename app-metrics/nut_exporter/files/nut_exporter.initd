@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+# Copyright 2016-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Network UPS Tools (NUT) Prometheus Exporter"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-nobody:nobody}
+
+command="/usr/bin/nut_exporter"
+command_background=true
+retry="${retry:-TERM/20/KILL/5}"
+
+depend() {
+	need net
+	after net
+}
