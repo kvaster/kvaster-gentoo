@@ -3,8 +3,6 @@
 
 EAPI=7
 
-inherit systemd
-
 DESCRIPTION="The Free Software Media System web panel"
 HOMEPAGE="https://github.com/jellyfin/jellyfin-web"
 
@@ -26,10 +24,11 @@ RESTRICT="mirror network-sandbox"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
-BDEPEND="sys-apps/yarn"
+BDEPEND="net-libs/nodejs[npm]"
 
 src_compile() {
-	yarn install || die
+	npm ci --no-audit || die
+	npm run build:production || die
 }
 
 src_install() {
