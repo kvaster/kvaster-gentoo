@@ -85,12 +85,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	#ht_fix_file configure.in
-
-	epatch "${FILESDIR}/nut-2.7.2/nut-2.7.2-no-libdummy.patch"
-	#epatch "${FILESDIR}"/${PN}-2.6.2-lowspeed-buffer-size.patch
-	#epatch "${FILESDIR}"/man-fix.patch
-	
 	epatch_user
 
 	sed -e "s:GD_LIBS.*=.*-L/usr/X11R6/lib \(.*\) -lXpm -lX11:GD_LIBS=\"\1:" \
@@ -106,7 +100,7 @@ src_prepare() {
 		-e 's:@LIBSSL_LDFLAGS@:@LIBSSL_LIBS@:' \
 		lib/libupsclient{.pc,-config}.in || die #361685
 
-    sh autogen.sh
+	sh autogen.sh
 	#eautoreconf
 }
 
