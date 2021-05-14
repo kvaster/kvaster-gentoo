@@ -11,7 +11,7 @@ SRC_URI=""
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm64"
-IUSE="pitop"
+IUSE=""
 RESTRICT="mirror"
 
 DEPEND=""
@@ -30,11 +30,7 @@ pkg_preinst() {
 src_install() {
 	insinto /boot
 	# 'starter' versions of these files, will be CONFIG_PROTECTed
-	if use pitop; then
-		newins "${FILESDIR}/config.pitop.txt-8" config.txt
-	else
-		newins "${FILESDIR}/config.txt-10" config.txt
-	fi
+	newins "${FILESDIR}/config.txt-10" config.txt
 	newins "${FILESDIR}/cmdline.txt-2" cmdline.txt
 	newenvd "${FILESDIR}"/config_protect-1 99${PN}
 }

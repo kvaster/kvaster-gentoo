@@ -15,12 +15,12 @@ SRC_URI="https://github.com/raspberrypi/firmware/archive/${UPSTREAM_PV}.tar.gz -
 LICENSE="GPL-2 raspberrypi-videocore-bin Broadcom"
 SLOT="0"
 KEYWORDS="~arm64"
-IUSE="pitop +dtbo"
+IUSE="+dtbo"
 RESTRICT="mirror binchecks strip"
 
 DEPEND=""
 RDEPEND="
-	>=sys-boot/rpi3-boot-config-1.0.0[pitop(-)?]
+	>=sys-boot/rpi-boot-config-1.0.0
 	!sys-boot/raspberrypi-firmware
 	${DEPEND}"
 
@@ -44,7 +44,7 @@ src_install() {
 	doins *.dat
 	doins *.broadcom
 	# assume /boot/cmdline.txt and /boot/config.txt now
-	# provided by rpi3-boot-config package;
+	# provided by rpi-boot-config package;
 	# assume kernel and dtbs are provided separately
 	# e.g. by sys-kernel/bcmrpi3-kernel-bin package
 }
