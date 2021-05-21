@@ -4,7 +4,8 @@
 # This ebuild come from bangert overlay
 inherit eutils user
 
-JMX_PRO_JA_VER="0.10"
+JMX_PRO_JA_VER="0.15.0"
+ZSTD_VER="0.0.2"
 
 VER="${PV/_/-}"
 VER_NS=${VER%-*}
@@ -12,7 +13,7 @@ VER_NS=${VER%-*}
 DESCRIPTION="Cassandra"
 HOMEPAGE="http://cassandra.apache.org/"
 SRC_URI="https://archive.apache.org/dist/cassandra/${VER_NS}/apache-cassandra-${VER}-bin.tar.gz
-         https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/${JMX_PRO_JA_VER}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar"
+	https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/${JMX_PRO_JA_VER}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar"
 LICENSE="Apache-2.0"
 SLOT="6"
 KEYWORDS="~amd64 ~x86"
@@ -77,10 +78,10 @@ src_install() {
 	done
 
 	exeinto ${CASSANDRA_HOME}/tools/bin
-        for tool in $TOOLS2
-        do
-                doexe tools/bin/${tool}
-        done
+	for tool in $TOOLS2
+	do
+		doexe tools/bin/${tool}
+	done
 
 	fowners -R cassandra:cassandra ${CASSANDRA_HOME}
 
@@ -106,7 +107,7 @@ src_install() {
 
 	# Add zstd compression (backport from 4.x branch)
 	insinto ${CASSANDRA_HOME}/lib
-	doins "${FILESDIR}"/${CONF}/zstd/*
+	doins "${FILESDIR}"/${CONF}/zstd-${ZSTD_VERSION}/*
 
 	# Add /jmx_prometheus_javaagent
 	doins ${DISTDIR}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar
