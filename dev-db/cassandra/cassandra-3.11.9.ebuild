@@ -2,6 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 # This ebuild come from bangert overlay
+
+EAPI=5
+
 inherit eutils user
 
 JMX_PRO_JA_VER="0.15.0"
