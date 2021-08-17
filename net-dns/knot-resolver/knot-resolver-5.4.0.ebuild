@@ -16,7 +16,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE="dnstap systemd +pie"
 
 RDEPEND="
-	>=net-dns/knot-2.8.0
+	>=net-dns/knot-3.0.0
 	>=dev-libs/libuv-1.7.0
 	dev-lang/luajit:2
 	dev-lua/luasocket
