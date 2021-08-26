@@ -1,25 +1,27 @@
---- a/SConstruct	2019-08-21 09:25:00.980260318 +0200
-+++ b/SConstruct	2019-08-21 09:27:53.653601283 +0200
-@@ -1858,7 +1858,6 @@
+diff --git a/SConstruct b/SConstruct
+index 115de78a..613110b7 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -2366,7 +2366,6 @@ if env.TargetOSIs('posix'):
+ 
      # -Winvalid-pch Warn if a precompiled header (see Precompiled Headers) is found in the search path but can't be used.
-     env.Append( CCFLAGS=["-fno-omit-frame-pointer",
-                          "-fno-strict-aliasing",
+     env.Append( CCFLAGS=["-fasynchronous-unwind-tables",
 -                         "-ggdb" if not env.TargetOSIs('emscripten') else "-g",
-                          "-pthread",
                           "-Wall",
                           "-Wsign-compare",
-@@ -1870,6 +1869,8 @@
-             env.Append( CCFLAGS=["-Werror"] )
+                          "-Wno-unknown-pragmas",
+@@ -2422,6 +2421,8 @@ if env.TargetOSIs('posix'):
  
+     # env.Append( " -Wconversion" ) TODO: this doesn't really work yet
      env.Append( CXXFLAGS=["-Woverloaded-virtual"] )
 +    env.Append( CXXFLAGS=os.environ['CXXFLAGS'] )
 +    env.Append( LINKFLAGS=os.environ['LDFLAGS'] )
-     if env.ToolchainIs('clang'):
-         env.Append( CXXFLAGS=['-Werror=unused-result'] )
  
-@@ -1890,8 +1891,8 @@
- 
-     env.Append( LIBS=[] )
+     # On OS X, clang doesn't want the pthread flag at link time, or it
+     # issues warnings which make it impossible for us to declare link
+@@ -2473,8 +2474,8 @@ if env.TargetOSIs('posix'):
+             ],
+         )
  
 -    #make scons colorgcc friendly
 -    for key in ('HOME', 'TERM'):

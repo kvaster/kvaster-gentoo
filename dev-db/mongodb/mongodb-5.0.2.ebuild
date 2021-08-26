@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{8..9} )
 
 SCONS_MIN_VERSION="3.3.1"
 CHECKREQS_DISK_BUILD="2400M"
@@ -20,9 +20,12 @@ SRC_URI="https://fastdl.mongodb.org/src/${MY_P}.tar.gz"
 
 LICENSE="Apache-2.0 SSPL-1"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64"
-IUSE="debug kerberos lto ssl test +tools"
-RESTRICT="!test? ( test )"
+KEYWORDS="~amd64 ~arm64 -riscv"
+IUSE="debug kerberos lto mongosh ssl +tools ${CPU_FLAGS}"
+
+# https://github.com/mongodb/mongo/wiki/Test-The-Mongodb-Server
+# resmoke needs python packages not yet present in Gentoo
+RESTRICT="test"
 
 RDEPEND="acct-group/mongodb
 	acct-user/mongodb
@@ -41,7 +44,6 @@ RDEPEND="acct-group/mongodb
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	$(python_gen_any_dep '
-		test? ( dev-python/pymongo[${PYTHON_USEDEP}] dev-python/requests[${PYTHON_USEDEP}] )
 		>=dev-util/scons-3.1.1[${PYTHON_USEDEP}]
 		dev-python/cheetah3[${PYTHON_USEDEP}]
 		dev-python/psutil[${PYTHON_USEDEP}]
@@ -50,23 +52,24 @@ DEPEND="${RDEPEND}
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
 	debug? ( dev-util/valgrind )"
-PDEPEND="tools? ( >=app-admin/mongo-tools-100 )"
+PDEPEND="
+	mongosh? ( app-admin/mongosh-bin )
+	tools? ( >=app-admin/mongo-tools-100 )
+"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-4.4.1-fix-scons.patch"
-	"${FILESDIR}/${PN}-4.4.1-no-compass.patch"
 	"${FILESDIR}/${PN}-4.4.1-boost.patch"
-	"${FILESDIR}/${PN}-4.4.4-opional-gcc11.patch"
+	"${FILESDIR}/${PN}-4.4.1-gcc11.patch"
+	"${FILESDIR}/${PN}-5.0.2-fix-scons.patch"
+	"${FILESDIR}/${PN}-5.0.2-no-compass.patch"
+	"${FILESDIR}/${PN}-5.0.2-skip-no-exceptions.patch"
+	"${FILESDIR}/${PN}-5.0.2-skip-reqs-check.patch"
+	"${FILESDIR}/${PN}-5.0.2-glibc-2.34.patch"
 )
 
 S="${WORKDIR}/${MY_P}"
 
 python_check_deps() {
-	if use test; then
-		has_version "dev-python/pymongo[${PYTHON_USEDEP}]" || return 1
-		has_version "dev-python/requests[${PYTHON_USEDEP}]" || return 1
-	fi
-
 	has_version ">=dev-util/scons-2.5.0[${PYTHON_USEDEP}]" &&
 	has_version "dev-python/cheetah3[${PYTHON_USEDEP}]" &&
 	has_version "dev-python/psutil[${PYTHON_USEDEP}]" &&
@@ -75,12 +78,12 @@ python_check_deps() {
 
 pkg_pretend() {
 	if [[ -n ${REPLACING_VERSIONS} ]]; then
-		if ver_test "$REPLACING_VERSIONS" -lt 4.2; then
-			ewarn "To upgrade from a version earlier than the 4.2-series, you must"
+		if ver_test "$REPLACING_VERSIONS" -lt 4.4; then
+			ewarn "To upgrade from a version earlier than the 4.4-series, you must"
 			ewarn "successively upgrade major releases until you have upgraded"
-			ewarn "to 4.2-series. Then upgrade to 4.4 series."
+			ewarn "to 4.4-series. Then upgrade to 5.0 series."
 		else
-			ewarn "Be sure to set featureCompatibilityVersion to 4.2 before upgrading."
+			ewarn "Be sure to set featureCompatibilityVersion to 4.4 before upgrading."
 		fi
 	fi
 }
@@ -89,7 +92,7 @@ src_prepare() {
 	default
 
 	# remove bundled libs
-	rm -r src/third_party/{boost-*,pcre-*,scons-*,snappy-*,yaml-cpp-*,zlib-*} || die
+	rm -r src/third_party/{boost,pcre-*,snappy-*,yaml-cpp,zlib-*} || die
 
 	# remove compass
 	rm -r src/mongo/installer/compass || die
@@ -104,6 +107,7 @@ src_configure() {
 		CXX="$(tc-getCXX)"
 
 		--disable-warnings-as-errors
+		--jobs="$(makeopts_jobs)"
 		--use-system-boost
 		--use-system-pcre
 		--use-system-snappy
@@ -111,6 +115,9 @@ src_configure() {
 		--use-system-yaml
 		--use-system-zlib
 		--use-system-zstd
+
+		CCFLAGS="${CFLAGS}"
+		--experimental-optimization=+O3
 	)
 
 	use arm64 && scons_opts+=( --use-hardware-crc32=off ) # Bug 701300
@@ -130,13 +137,7 @@ src_configure() {
 }
 
 src_compile() {
-	PREFIX="${ED}"/usr escons "${scons_opts[@]}" --nostrip install-core
-}
-
-# FEATURES="test -usersandbox" emerge dev-db/mongodb
-src_test() {
-	ewarn "Tests may hang with FEATURES=usersandbox"
-	"${EPYTHON}" ./buildscripts/resmoke.py run --dbpathPrefix=test --suites core --jobs=$(makeopts_jobs) || die "Tests failed with ${EPYTHON}"
+	PREFIX="${EPREFIX}/usr" ./buildscripts/scons.py "${scons_opts[@]}" install-core || die
 }
 
 src_install() {
