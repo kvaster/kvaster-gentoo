@@ -118,7 +118,7 @@ src_configure() {
 
 		CCFLAGS="${CFLAGS}"
 		--experimental-optimization=+O3
-		--linker=bfd
+		--linker=gold
 	)
 
 	use arm64 && scons_opts+=( --use-hardware-crc32=off ) # Bug 701300
