@@ -1,3 +1,0 @@
-#!/bin/sh
-export QT_DEVICE_PIXEL_RATIO=2
-exec /opt/viber/viber-bin "$@"
