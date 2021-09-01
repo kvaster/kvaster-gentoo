@@ -5,5 +5,5 @@ EAPI=7
 
 inherit acct-group
 
-DESCRIPTION="A group for mobell-proxy service"
+DESCRIPTION="A group for Nexus repository manager"
 ACCT_GROUP_ID="-1"

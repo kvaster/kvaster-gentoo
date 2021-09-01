@@ -1,16 +1,15 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
 
-EAPI=5
+EAPI=8
 
-inherit eutils user versionator systemd
+inherit systemd
 
 DESCRIPTION="Maven Repository Manager"
 HOMEPAGE="http://nexus.sonatype.org/"
 LICENSE="GPL-3"
 MY_PN="nexus"
-MY_PV="$(get_version_component_range 1-3)-$(get_version_component_range 4)"
+MY_PV="$(ver_cut 1-3)-$(ver_cut 4)"
 MY_P="${MY_PN}-${MY_PV}"
 MY_MV="3"
 
@@ -20,14 +19,12 @@ KEYWORDS="~x86 ~amd64"
 SLOT="${MY_MV}"
 IUSE=""
 S="${WORKDIR}"
-#echo "Debug: working directory: ${WORKDIR}"
-RDEPEND=">=virtual/jdk-1.8"
 INSTALL_DIR="/opt/nexus-oss"
 
-pkg_setup() {
-	enewgroup nexus
-	enewuser nexus -1 /bin/bash "${INSTALL_DIR}" "nexus"
-}
+DEPEND="acct-user/nexus"
+RDEPEND="
+>=virtual/jdk-1.8
+${DEPEND}"
 
 src_unpack() {
 	unpack ${A}
@@ -67,4 +64,3 @@ src_install() {
 	# patches
 	sed -i "s/\.\.\/sonatype-work\/nexus3/\/var\/lib\/nexus/g" ${ED}/etc/nexus/nexus.vmoptions
 }
-

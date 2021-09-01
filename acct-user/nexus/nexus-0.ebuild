@@ -5,8 +5,12 @@ EAPI=7
 
 inherit acct-user
 
-DESCRIPTION="A user for prometheus-bot service"
+DESCRIPTION="A user for Nexus repository manager"
 ACCT_USER_ID="-1"
-ACCT_USER_GROUPS=( prometheus-bot )
+ACCT_USER_GROUPS=( nexus )
+
+ACCT_USER_SHELL=/bin/bash
+ACCT_USER_HOME=/opt/nexus
+ACCT_USER_HOME_OWNER=nexus:nexus
 
 acct-user_add_deps
