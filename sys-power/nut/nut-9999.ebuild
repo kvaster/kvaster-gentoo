@@ -94,8 +94,6 @@ src_prepare() {
 	sed -e "s:52.nut-usbups.rules:70-nut-usbups.rules:" \
 		-i scripts/udev/Makefile.am || die
 
-	rm ltmain.sh m4/lt* m4/libtool.m4 || die
-
 	sed -e 's:@LIBSSL_LDFLAGS@:@LIBSSL_LIBS@:' \
 		-i lib/libupsclient{.pc,-config}.in || die #361685
 
