@@ -1,7 +1,6 @@
-#!/sbin/runscript
-# Copyright 1999-2005 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License, v2 or later
-# $Header: $
+#!/sbin/openrc-run
+# Copyright 2021 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
 
 extra_commands="safestop status check"
 

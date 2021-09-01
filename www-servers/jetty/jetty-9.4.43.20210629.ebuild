@@ -1,35 +1,35 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
-# This ebuild come from bangert overlay
 
-EAPI=5
+EAPI=7
 
-inherit eutils user eapi7-ver
+inherit eutils
 
 MAGIC=$(ver_cut 4-)
 VER=$(ver_cut 1-3)
 
-DESCRIPTION="Jetty is an full-featured web and applicaction server implemented entirely in Java."
+DESCRIPTION="Jetty - web and applicaction server for Java."
 HOMEPAGE="http://webtide.com"
 SRC_URI="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${VER}.v${MAGIC}/jetty-distribution-${VER}.v${MAGIC}.tar.gz"
 LICENSE="Apache-2.0"
-SLOT="6"
+SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-DEPEND=">=virtual/jdk-1.8
-	app-arch/unzip
-	dev-java/java-config"
-RDEPEND=">=virtual/jdk-1.8"
+
+RDEPEND="
+>=virtual/jdk-1.8
+acct-user/jetty
+"
+
+DEPEND="
+${RDEPEND}
+app-arch/unzip
+dev-java/java-config
+"
 
 S="${WORKDIR}"/jetty-distribution-${VER}.v${MAGIC}
 
 JETTY_HOME="/opt/jetty"
-
-pkg_setup() {
-	enewgroup jetty
-	enewuser jetty -1 /bin/bash ${JETTY_HOME} jetty
-}
 
 src_compile() {
 	epatch "${FILESDIR}"/${VER}/daemon.patch
@@ -61,9 +61,8 @@ src_install() {
 }
 
 pkg_postinst() {
-    elog "New ebuilds of Jetty support running multiple instances."
+	elog "New ebuilds of Jetty support running multiple instances."
 
-    elog "To manage Jetty instances, run:"
-    elog "  ${EPREFIX}/opt/jetty/gentoo/jetty-instance-manager.bash --help"
+	elog "To manage Jetty instances, run:"
+	elog "  ${EPREFIX}/opt/jetty/gentoo/jetty-instance-manager.bash --help"
 }
-

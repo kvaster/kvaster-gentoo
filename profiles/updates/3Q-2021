@@ -1,1 +1,2 @@
 move net-analyzer/prometheus-bot app-metrics/prometheus-bot
+slotmove www-servers/jetty 6 0
