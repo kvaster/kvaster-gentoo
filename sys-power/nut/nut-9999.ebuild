@@ -48,7 +48,7 @@ RDEPEND="
 S="${WORKDIR}/${MY_P}"
 
 # Bug #480664 requested UPS_DRIVERS_IUSE for more flexibility in building this package
-SERIAL_DRIVERLIST="al175 bcmxcp belkin belkinunv bestfcom bestfortress bestuferrups bestups dummy-ups etapro everups gamatronic genericups isbmex liebert liebert-esp2 masterguard metasys oldmge-shut mge-utalk microdowell mge-shut oneac optiups powercom rhino safenet solis tripplite tripplitesu upscode2 victronups powerpanel blazer_ser clone clone-outlet ivtscd apcsmart apcsmart-old apcupsd-ups riello_ser nutdrv_qx"
+SERIAL_DRIVERLIST="al175 bcmxcp belkin belkinunv bestfcom bestfortress bestuferrups bestups dummy-ups etapro everups gamatronic genericups isbmex liebert liebert-esp2 masterguard metasys mge-utalk microdowell mge-shut oneac optiups powercom rhino safenet solis tripplite tripplitesu upscode2 victronups powerpanel blazer_ser clone clone-outlet ivtscd apcsmart apcsmart-old apcupsd-ups riello_ser nutdrv_qx"
 SNMP_DRIVERLIST="snmp-ups"
 USB_LIBUSB_DRIVERLIST="usbhid-ups bcmxcp_usb tripplite_usb blazer_usb richcomm_usb riello_usb nutdrv_qx"
 USB_DRIVERLIST=${USB_LIBUSB_DRIVERLIST}
