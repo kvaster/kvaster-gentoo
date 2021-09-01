@@ -4,7 +4,7 @@
 
 description="Mobell proxy, companion for mobell android app and mobotix cameras"
 pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
-command_user=${command_user:-mobell-proxy:mobell-proxy}
+command_user=${command_user:-${SVCNAME}:${SVCNAME}}
 
 command="/usr/bin/mobell-proxy"
 command_background=true
