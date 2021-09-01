@@ -168,7 +168,7 @@ src_install() {
 		mv "${i}" "${i/.sample/}" || die
 	done
 
-	local DOCS=( AUTHORS ChangeLog docs/*.txt MAINTAINERS NEWS README TODO UPGRADING )
+	local DOCS=( AUTHORS docs/*.txt MAINTAINERS NEWS README TODO UPGRADING )
 	einstalldocs
 
 	newdoc lib/README README.lib
