@@ -110,7 +110,7 @@ src_install() {
 
 	# Add zstd compression (backport from 4.x branch)
 	insinto ${CASSANDRA_HOME}/lib
-	doins "${FILESDIR}"/${CONF}/zstd-${ZSTD_VERSION}/*
+	doins "${FILESDIR}"/${CONF}/zstd-${ZSTD_VER}/*
 
 	# Add /jmx_prometheus_javaagent
 	doins ${DISTDIR}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar
