@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+# Copyright 2016-2021 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Prometheus Bot"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-${SVCNAME}:${SVCNAME}}
+
+command=/usr/bin/prometheus-bot
+command_background=true
+retry="${retry:-TERM/20/KILL/5}"
+log=${log:-/var/log/${SVCNAME}/bot.log}
+start_stop_daemon_args="-1 $log -2 $log"
+
+depend() {
+	need net
+	after net
+}

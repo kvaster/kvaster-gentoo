@@ -6,7 +6,7 @@ EAPI=7
 inherit acct-user
 
 DESCRIPTION="A user for the Jellyfin Media Server"
-ACCT_USER_ID="960"
+ACCT_USER_ID="-1"
 ACCT_USER_GROUPS=( jellyfin )
 ACCT_USER_HOME="/var/lib/jellyfin"
 

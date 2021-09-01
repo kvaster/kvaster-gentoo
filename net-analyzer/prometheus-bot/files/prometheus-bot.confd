@@ -1,3 +1,0 @@
-PROMETHEUS_BOT_USER="prometheus-bot"
-PROMETHEUS_BOT_ARGS="-l localhost:9094 -c /etc/prometheus-bot/bot.yml -t /etc/prometheus-bot/bot.tmpl"
-PROMETHEUS_BOT_LOG_FILE="/var/log/prometheus-bot/bot.log"

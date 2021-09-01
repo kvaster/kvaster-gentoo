@@ -6,4 +6,4 @@ EAPI=7
 inherit acct-group
 
 DESCRIPTION="A group for the Jellyfin Media Server"
-ACCT_GROUP_ID="960"
+ACCT_GROUP_ID="-1"

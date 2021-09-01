@@ -1,0 +1,2 @@
+# arguments for bot
+command_args="-l localhost:9094 -c /etc/prometheus-bot/bot.yml -t /etc/prometheus-bot/bot.tmpl"
