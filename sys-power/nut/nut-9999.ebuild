@@ -1,43 +1,54 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-inherit autotools bash-completion-r1 eutils fixheadtails multilib user systemd flag-o-matic toolchain-funcs git-r3
+EAPI=7
+
+inherit autotools bash-completion-r1 desktop fixheadtails flag-o-matic systemd toolchain-funcs git-r3
 
 MY_P=${P/_/-}
 
 DESCRIPTION="Network-UPS Tools"
-HOMEPAGE="http://www.networkupstools.org/"
+HOMEPAGE="https://www.networkupstools.org/"
 # Nut mirrors are presently broken
 EGIT_REPO_URI="https://github.com/networkupstools/nut.git"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ppc ppc64 x86 ~x86-fbsd"
+KEYWORDS="amd64 arm64"
 
-IUSE="cgi ipmi snmp +usb selinux ssl tcpd xml zeroconf"
+IUSE="cgi ipmi snmp +usb selinux split-usr ssl tcpd xml zeroconf"
+
 CDEPEND="
-	cgi? ( >=media-libs/gd-2[png] )
-	snmp? ( net-analyzer/net-snmp )
-	usb? ( virtual/libusb:0 )
-	ssl? ( >=dev-libs/openssl-1 )
-	tcpd? ( sys-apps/tcp-wrappers )
-	xml? ( >=net-libs/neon-0.25.0 )
-	ipmi? ( sys-libs/freeipmi )
-	zeroconf? ( net-dns/avahi )
-	dev-libs/libltdl
-	virtual/udev"
-DEPEND="$CDEPEND
-	>=sys-apps/sed-4
-	virtual/pkgconfig"
-RDEPEND="${CDEPEND}
-	selinux? ( sec-policy/selinux-nut )
+	acct-group/nut
+	acct-user/nut
 "
 
-S=${WORKDIR}/${MY_P}
+DEPEND="
+	dev-libs/libltdl
+	net-libs/libnsl:=
+	virtual/udev
+	cgi? ( >=media-libs/gd-2[png] )
+	ipmi? ( sys-libs/freeipmi )
+	snmp? ( net-analyzer/net-snmp:= )
+	ssl? ( >=dev-libs/openssl-1:= )
+	tcpd? ( sys-apps/tcp-wrappers )
+	usb? ( virtual/libusb:0= )
+	xml? ( >=net-libs/neon-0.25.0:= )
+	zeroconf? ( net-dns/avahi )"
+
+BDEPEND="
+	${CDEPEND}
+	virtual/pkgconfig"
+
+RDEPEND="
+	${CDEPEND}
+	${DEPEND}
+	selinux? ( sec-policy/selinux-nut )"
+
+S="${WORKDIR}/${MY_P}"
 
 # Bug #480664 requested UPS_DRIVERS_IUSE for more flexibility in building this package
-SERIAL_DRIVERLIST="al175 bcmxcp belkin belkinunv bestfcom bestfortress bestuferrups bestups dummy-ups etapro everups gamatronic genericups isbmex liebert liebert-esp2 masterguard metasys mge-utalk microdowell mge-shut oneac optiups powercom rhino safenet solis tripplite tripplitesu upscode2 victronups powerpanel blazer_ser clone clone-outlet ivtscd apcsmart apcsmart-old apcupsd-ups riello_ser nutdrv_qx"
+SERIAL_DRIVERLIST="al175 bcmxcp belkin belkinunv bestfcom bestfortress bestuferrups bestups dummy-ups etapro everups gamatronic genericups isbmex liebert liebert-esp2 masterguard metasys oldmge-shut mge-utalk microdowell mge-shut oneac optiups powercom rhino safenet solis tripplite tripplitesu upscode2 victronups powerpanel blazer_ser clone clone-outlet ivtscd apcsmart apcsmart-old apcupsd-ups riello_ser nutdrv_qx"
 SNMP_DRIVERLIST="snmp-ups"
 USB_LIBUSB_DRIVERLIST="usbhid-ups bcmxcp_usb tripplite_usb blazer_usb richcomm_usb riello_usb nutdrv_qx"
 USB_DRIVERLIST=${USB_LIBUSB_DRIVERLIST}
@@ -73,19 +84,8 @@ NUT_PRIVATE_FILES="/etc/nut/{upsd.conf,upsd.users,upsmon.conf}"
 # public files should be 644 root:root, only installed if USE=cgi
 NUT_CGI_FILES="/etc/nut/{{hosts,upsset}.conf,upsstats{,-single}.html}"
 
-pkg_setup() {
-	enewgroup nut 84
-	enewuser nut 84 -1 /var/lib/nut nut,uucp
-	# As of udev-104, NUT must be in uucp and NOT in tty.
-	gpasswd -d nut tty 2>/dev/null
-	gpasswd -a nut uucp 2>/dev/null
-	# in some cases on old systems it wasn't in the nut group either!
-	gpasswd -a nut nut 2>/dev/null
-	warningmsg ewarn
-}
-
 src_prepare() {
-	epatch_user
+	default
 
 	sed -e "s:GD_LIBS.*=.*-L/usr/X11R6/lib \(.*\) -lXpm -lX11:GD_LIBS=\"\1:" \
 		-e '/systemdsystemunitdir=.*echo.*sed.*libdir/s,^,#,g' \
@@ -94,11 +94,10 @@ src_prepare() {
 	sed -e "s:52.nut-usbups.rules:70-nut-usbups.rules:" \
 		-i scripts/udev/Makefile.am || die
 
-	rm -f ltmain.sh m4/lt* m4/libtool.m4
+	rm ltmain.sh m4/lt* m4/libtool.m4 || die
 
-	sed -i \
-		-e 's:@LIBSSL_LDFLAGS@:@LIBSSL_LIBS@:' \
-		lib/libupsclient{.pc,-config}.in || die #361685
+	sed -e 's:@LIBSSL_LDFLAGS@:@LIBSSL_LIBS@:' \
+		-i lib/libupsclient{.pc,-config}.in || die #361685
 
 	sh autogen.sh
 	#eautoreconf
@@ -106,7 +105,9 @@ src_prepare() {
 
 src_configure() {
 	local myconf
+
 	append-flags -fno-lto
+
 	tc-export CC
 	tc-export CXX
 	tc-export AR
@@ -135,6 +136,7 @@ src_configure() {
 		--with-logfacility=LOG_DAEMON \
 		--with-dev \
 		--with-serial \
+		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		--without-powerman \
 		$(use_with cgi) \
 		$(use_with ipmi) \
@@ -145,17 +147,16 @@ src_configure() {
 		$(use_with usb) \
 		$(use_with xml neon) \
 		$(use_with zeroconf avahi) \
-		$(systemd_with_unitdir) \
 		${myconf}
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die
+	emake DESTDIR="${D}" install
 
-	find "${D}" -name '*.la' -exec rm -f {} +
+	find "${D}" -name '*.la' -delete || die
 
 	dodir /sbin
-	dosym /usr/sbin/upsdrvctl /sbin/upsdrvctl
+	use split-usr && dosym ../usr/sbin/upsdrvctl /sbin/upsdrvctl
 
 	if use cgi; then
 		elog "CGI monitoring scripts are installed in /usr/share/nut/cgi."
@@ -166,22 +167,23 @@ src_install() {
 
 	# this must be done after all of the install phases
 	for i in "${D}"/etc/nut/*.sample ; do
-		mv "${i}" "${i/.sample/}"
+		mv "${i}" "${i/.sample/}" || die
 	done
 
-	dodoc AUTHORS docs/*.txt MAINTAINERS NEWS README TODO UPGRADING || die
+	local DOCS=( AUTHORS ChangeLog docs/*.txt MAINTAINERS NEWS README TODO UPGRADING )
+	einstalldocs
 
-	newdoc lib/README README.lib || die
-	newdoc "${FILESDIR}"/lighttpd_nut.conf-2.2.0 lighttpd_nut.conf || die
+	newdoc lib/README README.lib
+	newdoc "${FILESDIR}"/lighttpd_nut.conf-2.2.0 lighttpd_nut.conf
 
 	docinto cables
-	dodoc docs/cables/* || die
+	dodoc docs/cables/*
 
-	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upsd upsd || die
-	newinitd "${FILESDIR}"/nut-2.2.2-init.d-upsdrv upsdrv || die
-	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upsmon upsmon || die
-	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upslog upslog || die
-	newinitd "${FILESDIR}"/nut.powerfail.initd nut.powerfail || die
+	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upsd upsd
+	newinitd "${FILESDIR}"/nut-2.2.2-init.d-upsdrv upsdrv
+	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upsmon upsmon
+	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upslog upslog
+	newinitd "${FILESDIR}"/nut.powerfail.initd nut.powerfail
 
 	keepdir /var/lib/nut
 
@@ -211,7 +213,8 @@ src_install() {
 		doins scripts/hotplug/nut-usbups.hotplug
 	fi
 
-	dobashcomp "${S}"/scripts/misc/nut.bash_completion
+	newbashcomp "${S}"/scripts/misc/nut.bash_completion upsc
+	bashcomp_alias upsc upscmd upsd upsdrvctl upsmon upsrw
 }
 
 pkg_postinst() {
