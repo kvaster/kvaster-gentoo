@@ -15,11 +15,8 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64"
 
-DEPEND=""
-RDEPEND="
-${DEPEND}
-acct-user/prometheus-bot
-"
+DEPEND="acct-user/prometheus-bot"
+RDEPEND="${DEPEND}"
 
 EGO_SUM=(
 	"github.com/aymerick/douceur v0.2.0"
