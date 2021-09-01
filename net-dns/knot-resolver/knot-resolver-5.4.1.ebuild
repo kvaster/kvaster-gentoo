@@ -1,9 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit meson user
+inherit meson
 
 DESCRIPTION="A caching full DNS resolver implementation written in C and LuaJIT"
 HOMEPAGE="https://www.knot-resolver.cz"
@@ -29,18 +29,13 @@ RDEPEND="
 		dev-libs/protobuf-c
 		dev-libs/fstrm
 	)
+	acct-user/knot-resolver
 "
 DEPEND="${RDEPEND}
 	>=dev-util/meson-0.46.0
 	virtual/pkgconfig
 	dev-util/ninja
 "
-
-pkg_setup() {
-	# TODO: use new group and user system
-	enewgroup knot-resolver
-	enewuser knot-resolver -1 -1 /var/lib/knot-resolver knot-resolver
-}
 
 src_configure() {
 	local emesonargs=(
@@ -56,12 +51,9 @@ src_install() {
 	fowners -R knot-resolver:knot-resolver /etc/knot-resolver
 	fperms -R 0750 /etc/knot-resolver
 
-	diropts -o knot-resolver -g knot-resolver
-	keepdir /var/log/knot-resolver
-	keepdir /var/lib/knot-resolver
-
 	diropts -o knot-resolver -g knot-resolver -m 0750
-	keepdir /var/lib/cache/${PN}
+	keepdir /var/log/${PN}
+	keepdir /var/lib/${PN}
 
 	newinitd "${FILESDIR}"/kresd.initd kresd
 	newconfd "${FILESDIR}"/kresd.confd kresd
