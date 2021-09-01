@@ -94,6 +94,9 @@ src_compile() {
 src_install() {
 	newbin mobell-proxy mobell-proxy
 
+	insinto /etc/logrotate.d
+	newins "${FILESDIR}"/${PN}.logrotate ${PN}
+
 	diropts -m0750 -o mobell-proxy -g mobell-proxy
 	keepdir /var/log/${PN}
 
