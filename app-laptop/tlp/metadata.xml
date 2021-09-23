@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<!--<herd>no-herd</herd>-->
+	<maintainer type="person">
+		<email>dywi@mailerd.de</email>
+		<name>Andre Erdmann</name>
+	</maintainer>
+	<upstream>
+		<maintainer>
+			<email>linrunner@gmx.net</email>
+			<name>Thomas Koch</name>
+		</maintainer>
+		<remote-id type="github">linrunner/TLP</remote-id>
+		<changelog>https://raw.github.com/linrunner/TLP/master/debian/changelog</changelog>
+		<doc lang="de">https://thinkwiki.de/TLP_-_Linux_Stromsparen</doc>
+		<doc lang="en">https://linrunner.de/en/tlp/docs/tlp-linux-advanced-power-management.html</doc>
+		<bugs-to>https://github.com/linrunner/TLP/issues</bugs-to>
+	</upstream>
+	<longdescription>
+	TLP brings you the benefits of advanced power management for Linux without
+	the need to understand every technical detail. TLP comes with a default
+	configuration already optimized for battery life, so you may just install
+	and forget it. Nevertheless TLP is highly customizable to fulfil
+	your specific requirements.
+
+	TLP runs on every laptop brand.
+	Setting the battery charge thresholds is available for IBM/Lenovo ThinkPads only.
+	</longdescription>
+	<use lang="en">
+		<flag name='pm-utils'>
+			Rely on <pkg>sys-power/pm-utils</pkg> for handling system
+			suspend/hibernate/resume. Deprecated and not supported upstream anymore.
+
+			It is recommended to keep this flag disabled and use either
+			<pkg>sys-apps/systemd</pkg> or <pkg>sys-auth/elogind</pkg>.
+		</flag>
+		<flag name='tlp-suggests'>Pull in all optional dependencies</flag>
+		<flag name='tlp_suggests'>Pull in all optional dependencies (TLP &lt; 1.3)</flag>
+		<flag name='rdw'>Radio device wizard: switch radios upon network connect/disconnect and dock/undock</flag>
+		<flag name='tpacpi-bundled'>Use the bundled tpacpi-bat script instead of <pkg>app-laptop/tpacpi-bat</pkg>.</flag>
+	</use>
+</pkgmetadata>
