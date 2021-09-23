@@ -1,0 +1,28 @@
+diff --git a/Telegram/CMakeLists.txt b/Telegram/CMakeLists.txt
+index 9f00b64..c3a9647 100644
+--- a/Telegram/CMakeLists.txt
++++ b/Telegram/CMakeLists.txt
+@@ -1263,6 +1263,7 @@ else()
+             desktop-app::external_dbusmenu_qt
+             desktop-app::external_glibmm
+             desktop-app::external_glib
++            desktop-app::external_jemalloc
+         )
+     endif()
+ 
+diff --git a/cmake/options_linux.cmake b/cmake/options_linux.cmake
+index 2797c7b..87c8bc8 100644
+--- a/cmake/options_linux.cmake
++++ b/cmake/options_linux.cmake
+@@ -45,11 +45,6 @@ if (DESKTOP_APP_SPECIAL_TARGET)
+     target_link_options(common_options INTERFACE $<IF:$<CONFIG:Debug>,,-g -flto -fuse-linker-plugin>)
+ endif()
+ 
+-target_link_libraries(common_options
+-INTERFACE
+-    desktop-app::external_jemalloc
+-)
+-
+ if (DESKTOP_APP_USE_ALLOCATION_TRACER)
+     target_link_options(common_options
+     INTERFACE
