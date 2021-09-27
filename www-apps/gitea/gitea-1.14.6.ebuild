@@ -39,7 +39,7 @@ FILECAPS=(
 	-m 0755 cap_net_bind_service+ep usr/bin/gitea
 )
 
-RESTRICT="test"
+RESTRICT="test network-sandbox"
 QA_PRESTRIPPED="usr/bin/gitea"
 
 src_prepare() {
