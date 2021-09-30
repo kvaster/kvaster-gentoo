@@ -8,5 +8,3 @@ To be removed when ebuild in main repo will be available:
 To be removed when mongodb will be compiled with native optimizations
 [ ] dev-db/mongodb
 
-To be removed when available mainline
-[ ] net-im/telegram-desktop
