@@ -7,7 +7,7 @@ inherit java-vm-2
 
 abi_uri() {
 	echo "${2-$1}? (
-			https://github.com/AdoptOpenJDK/openjdk${SLOT}-binaries/releases/download/jdk-${MY_PV}/OpenJDK${SLOT}U-jdk_${1}_linux_hotspot_${MY_PV//+/_}.tar.gz
+			https://github.com/adoptium/temurin${SLOT}-binaries/releases/download/jdk-${MY_PV}/OpenJDK${SLOT}-jdk_${1}_linux_hotspot_${MY_PV//+/_}.tar.gz
 		)"
 }
 
@@ -15,15 +15,15 @@ MY_PV=${PV/_p/+}
 SLOT=${MY_PV%%[.+]*}
 
 SRC_URI="
-	$(abi_uri arm)
+	$(abi_uri aarch64 arm64)
 	$(abi_uri ppc64le ppc64)
 	$(abi_uri x64 amd64)
 "
 
-DESCRIPTION="Prebuilt Java JDK binaries provided by AdoptOpenJDK"
+DESCRIPTION="Prebuilt Java JDK binaries provided by Adoptium"
 HOMEPAGE="https://adoptopenjdk.net"
 LICENSE="GPL-2-with-classpath-exception"
-KEYWORDS="~amd64 ~arm ~ppc64"
+KEYWORDS="~amd64 ~arm64 ~ppc64"
 IUSE="alsa cups doc examples +gentoo-vm headless-awt selinux source +webstart"
 
 RDEPEND="

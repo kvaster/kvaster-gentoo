@@ -10,7 +10,8 @@ SLOT="${MY_PV%%[.+]*}"
 
 DESCRIPTION="Open source implementation of the Java programming language"
 HOMEPAGE="https://openjdk.java.net"
-SRC_URI="https://hg.${PN}.java.net/jdk-updates/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.bz2 -> ${P}.tar.bz2"
+#SRC_URI="https://hg.${PN}.java.net/jdk-updates/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.bz2 -> ${P}.tar.bz2"
+SRC_URI="https://github.com/openjdk/jdk${SLOT}u/archive/jdk-${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc64"
@@ -72,7 +73,7 @@ PDEPEND="
 
 REQUIRED_USE="javafx? ( alsa !headless-awt )"
 
-S="${WORKDIR}/jdk${SLOT}u-jdk-${MY_PV}"
+S="${WORKDIR}/jdk${SLOT}u-jdk-${PV/_p/-}"
 
 # The space required to build varies wildly depending on USE flags,
 # ranging from 2GB to 16GB. This function is certainly not exact but
