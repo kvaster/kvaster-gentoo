@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+# Copyright 2021 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="VictoriaMetrics vmalert daemon"
+description="VictoriaMetrics - time series database and monitoring solution"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-nobody:nobody}
+
+command=/usr/bin/vmalert
+retry="${retry:-TERM/20/KILL/5}"
+
+output_logger="sh -c '/usr/bin/logger --tag vmalert'"
+error_logger="sh -c '/usr/bin/logger --tag vmalert'"
+
+command_background="true"
+
+depend() {
+	need net
+	after net
+}

@@ -11,6 +11,3 @@ To be removed when mongodb will be compiled with native optimizations
 To be removed when ebuild in main repo will be available:
 [ ] sys-cluster/k9scli
 
-To be removed when ebuild in main repo will be available:
-[ ] net-im/slack
-
