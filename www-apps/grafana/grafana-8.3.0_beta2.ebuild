@@ -34,7 +34,7 @@ src_prepare() {
 
 	mkdir "plugins-bundled/external"
 
-	yarn install --pure-lockfile --no-progress || die "prepare failed"
+	yarn install || die "prepare failed"
 	default
 }
 
@@ -42,7 +42,8 @@ src_compile() {
 	addpredict /etc/npm
 
 	einfo "Build go files"
-	go run build.go build || die "compile failed"
+	#go run build.go build || die "compile failed"
+	make build-go
 	einfo "Build frontend "
 	yarn run build || die "compile failed"
 	yarn run plugins:build-bundled || die "compile failed"
