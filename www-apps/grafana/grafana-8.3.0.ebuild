@@ -43,7 +43,7 @@ src_compile() {
 
 	einfo "Build go files"
 	#go run build.go build || die "compile failed"
-	make build-go
+	make build-go || die "compile failed"
 	einfo "Build frontend "
 	yarn run build || die "compile failed"
 	yarn run plugins:build-bundled || die "compile failed"
