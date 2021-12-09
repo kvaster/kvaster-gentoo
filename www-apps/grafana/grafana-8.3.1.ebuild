@@ -43,7 +43,7 @@ src_compile() {
 
 	einfo "Build go files"
 	#go run build.go build || die "compile failed"
-	make build-go
+	make build-go || die "compile failed"
 	einfo "Build frontend "
 	yarn run build || die "compile failed"
 	yarn run plugins:build-bundled || die "compile failed"
@@ -51,7 +51,7 @@ src_compile() {
 
 src_install() {
 	insinto /etc/grafana
-	newins conf/sample.ini grafana.ini
+	newins conf/sample.ini grafana.example.ini
 	newins conf/ldap.toml ldap.toml
 
 	dobin `(find bin -name grafana-cli)`
@@ -72,8 +72,8 @@ src_install() {
 	fperms 0750 /var/lib/grafana/{dashboards,plugins}
 
 	keepdir /etc/grafana
-	fowners grafana:grafana /etc/grafana/{grafana.ini,ldap.toml}
-	fperms 0640 /etc/grafana/{grafana.ini,ldap.toml}
+	fowners grafana:grafana /etc/grafana/{grafana.example.ini,ldap.toml}
+	fperms 0640 /etc/grafana/{grafana.example.ini,ldap.toml}
 }
 
 postinst() {
