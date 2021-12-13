@@ -1,0 +1,20 @@
+#!/sbin/openrc-run
+# Copyright 2016-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="usb-io-board exporter"
+description="Prometheus metrics exporter for usb io board by hardkernel"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-nobody:usb}
+
+command="/usr/bin/usbioboard_exporter"
+command_background=true
+retry="${retry:-TERM/20/KILL/5}"
+
+output_logger="sh -c '/usr/bin/logger --tag usbioboard'"
+error_logger="sh -c '/usr/bin/logger --tag usbioboard'"
+
+depend() {
+	need net
+	after net
+}
