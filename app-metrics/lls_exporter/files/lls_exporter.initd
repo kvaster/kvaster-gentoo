@@ -11,9 +11,6 @@ command="/usr/bin/lls_exporter"
 command_background=true
 retry="${retry:-TERM/20/KILL/5}"
 
-output_logger="sh -c '/usr/bin/logger --tag lls_exporter'"
-error_logger="sh -c '/usr/bin/logger --tag lls_exporter'"
-
 depend() {
 	need net
 	after net
