@@ -1,2 +1,2 @@
 # arguments for usbioboard exporter
-command_args="-config /etc/usbioboard_exporter/config.yml"
+command_args="-config /etc/usbioboard_exporter/config.yml -log.syslog usbioboard"

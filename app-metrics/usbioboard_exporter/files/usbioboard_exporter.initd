@@ -11,9 +11,6 @@ command="/usr/bin/usbioboard_exporter"
 command_background=true
 retry="${retry:-TERM/20/KILL/5}"
 
-output_logger="sh -c '/usr/bin/logger --tag usbioboard'"
-error_logger="sh -c '/usr/bin/logger --tag usbioboard'"
-
 depend() {
 	need net
 	after net
