@@ -7,7 +7,7 @@ description="VictoriaMetrics - time series database and monitoring solution"
 pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
 command_user=${command_user:-vmetrics:vmetrics}
 
-log_file="/var/log/victoriametrics/victoriametrics.log"
+logfile="/var/log/victoriametrics/victoriametrics.log"
 output_log=${output_log:-${logfile}}
 error_log=${error_log:-${logfile}}
 
