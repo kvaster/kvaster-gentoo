@@ -5,7 +5,7 @@
 name="LLS Exporter"
 description="LLS Exporter for rs485/rs232 lls fuel level sensors"
 pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
-command_user=${command_user:-nobody:uucp}
+command_user=${command_user:-nobody:dialout}
 
 command="/usr/bin/lls_exporter"
 command_background=true
