@@ -3,16 +3,19 @@
 
 EAPI=7
 
-inherit git-r3
+COMMIT="e7fd166981ab4bb9a36c2d1500205a078a35714d"
 
 DESCRIPTION="Bluetooth firmware for rpi3 and rpi4"
 HOMEPAGE="https://github.com/RPi-Distro/bluez-firmware"
 
-EGIT_REPO_URI="https://github.com/RPi-Distro/bluez-firmware.git"
-EGIT_COMMIT="e7fd166"
+SRC_URI="https://github.com/RPi-Distro/bluez-firmware/archive/$COMMIT.tar.gz -> ${P}.tar.gz"
+
+RESTRICT="mirror"
+
+S="${WORKDIR}/bluez-firmware-${COMMIT}"
 
 SLOT="0"
-KEYWORDS="arm64"
+KEYWORDS="amd64 arm64"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
