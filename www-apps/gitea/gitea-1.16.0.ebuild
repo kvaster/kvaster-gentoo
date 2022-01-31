@@ -9,9 +9,9 @@ DESCRIPTION="A painless self-hosted Git service"
 HOMEPAGE="https://gitea.io"
 
 if [[ ${PV} != 9999* ]] ; then
-	SRC_URI="https://github.com/go-gitea/gitea/releases/download/v${MY_PV}/gitea-src-${MY_PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/go-gitea/gitea/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
-	S="${WORKDIR}"
+	S="${WORKDIR}/${P}"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
 	inherit git-r3
@@ -21,6 +21,10 @@ fi
 LICENSE="Apache-2.0 BSD BSD-2 ISC MIT MPL-2.0"
 SLOT="0"
 IUSE="+acct build-client pam sqlite"
+
+PATCHES=(
+	"${FILESDIR}"/rebase-prs-onmerge-1.16.patch
+)
 
 BDEPEND="build-client? ( >=net-libs/nodejs-10[npm] )"
 COMMON_DEPEND="
@@ -60,9 +64,6 @@ src_prepare() {
 	if use sqlite ; then
 		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.example.ini || die
 	fi
-
-	einfo "Remove tests which are known to fail with network-sandbox enabled."
-	rm ./modules/migrations/github_test.go || die
 
 	einfo "Remove tests which depend on gitea git-repo."
 	rm ./modules/git/blob_test.go || die
