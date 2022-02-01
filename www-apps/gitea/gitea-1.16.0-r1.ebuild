@@ -24,6 +24,10 @@ IUSE="+acct build-client pam sqlite"
 
 PATCHES=(
 	"${FILESDIR}"/rebase-prs-onmerge-1.16.patch
+	"${FILESDIR}"/avatar-url-type.patch
+	"${FILESDIR}"/fix-excerpt.patch
+	"${FILESDIR}"/google-icon.patch
+	"${FILESDIR}"/no-3way-patch.patch
 )
 
 BDEPEND="build-client? ( >=net-libs/nodejs-10[npm] )"

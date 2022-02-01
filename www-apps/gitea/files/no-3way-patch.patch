@@ -1,0 +1,14 @@
+diff --git a/services/pull/patch.go b/services/pull/patch.go
+index a63216791..bbb02ec21 100644
+--- a/services/pull/patch.go
++++ b/services/pull/patch.go
+@@ -343,9 +343,6 @@ func checkConflicts(pr *models.PullRequest, gitRepo *git.Repository, tmpBasePath
+ 	if prConfig.IgnoreWhitespaceConflicts {
+ 		args = append(args, "--ignore-whitespace")
+ 	}
+-	if git.CheckGitVersionAtLeast("2.32.0") == nil {
+-		args = append(args, "--3way")
+-	}
+ 	args = append(args, patchPath)
+ 	pr.ConflictedFiles = make([]string, 0, 5)
+ 

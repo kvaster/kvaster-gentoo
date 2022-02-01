@@ -1,0 +1,56 @@
+diff --git a/templates/repo/diff/blob_excerpt.tmpl b/templates/repo/diff/blob_excerpt.tmpl
+index b3e80881f..c20e2c8b6 100644
+--- a/templates/repo/diff/blob_excerpt.tmpl
++++ b/templates/repo/diff/blob_excerpt.tmpl
+@@ -22,6 +22,7 @@
+ 			<td colspan="5" class="lines-code lines-code-old ">{{$inlineDiff := $.section.GetComputedInlineDiffFor $line}}<code {{if $inlineDiff.EscapeStatus.Escaped}}class="code-inner has-escaped" title="{{$.i18n.Tr "repo.line_unicode"}}"{{else}}class="code-inner"{{end}}>{{$inlineDiff.Content}}</code></td>
+ 		{{else}}
+ 			<td class="lines-num lines-num-old" data-line-num="{{if $line.LeftIdx}}{{$line.LeftIdx}}{{end}}"><span rel="{{if $line.LeftIdx}}diff-{{Sha1 $.fileName}}L{{$line.LeftIdx}}{{end}}"></span></td>
++			<td class="blob-excerpt lines-escape lines-escape-old"></td>
+ 			<td class="blob-excerpt lines-type-marker lines-type-marker-old">{{if $line.LeftIdx}}<span class="mono" data-type-marker=""></span>{{end}}</td>
+ 			<td class="blob-excerpt lines-code lines-code-old halfwidth">{{/*
+ 				*/}}{{if $line.LeftIdx}}{{/*
+@@ -31,6 +32,7 @@
+ 					*/}}{{end}}{{/*
+ 				*/}}</td>
+ 			<td class="lines-num lines-num-new" data-line-num="{{if $line.RightIdx}}{{$line.RightIdx}}{{end}}"><span rel="{{if $line.RightIdx}}diff-{{Sha1 $.fileName}}R{{$line.RightIdx}}{{end}}"></span></td>
++			<td class="blob-excerpt lines-escape lines-escape-new"></td>
+ 			<td class="blob-excerpt lines-type-marker lines-type-marker-new">{{if $line.RightIdx}}<span class="mono" data-type-marker=""></span>{{end}}</td>
+ 			<td class="blob-excerpt lines-code lines-code-new halfwidth">{{/*
+ 				*/}}{{if $line.RightIdx}}{{/*
+@@ -67,6 +69,7 @@
+ 			<td class="lines-num lines-num-old" data-line-num="{{if $line.LeftIdx}}{{$line.LeftIdx}}{{end}}"><span rel="{{if $line.LeftIdx}}diff-{{Sha1 $.fileName}}L{{$line.LeftIdx}}{{end}}"></span></td>
+ 			<td class="lines-num lines-num-new" data-line-num="{{if $line.RightIdx}}{{$line.RightIdx}}{{end}}"><span rel="{{if $line.RightIdx}}diff-{{Sha1 $.fileName}}R{{$line.RightIdx}}{{end}}"></span></td>
+ 		{{end}}
++		<td class="blob-excerpt lines-escape"></td>
+ 		<td class="blob-excerpt lines-type-marker"><span class="mono" data-type-marker="{{$line.GetLineTypeMarker}}"></span></td>
+ 		<td class="blob-excerpt lines-code{{if (not $line.RightIdx)}} lines-code-old{{end}}">{{$inlineDiff := $.section.GetComputedInlineDiffFor $line}}<code {{if $inlineDiff.EscapeStatus.Escaped}}class="code-inner has-escaped" title="{{$.i18n.Tr "repo.line_unicode"}}"{{else}}class="code-inner"{{end}}>{{$inlineDiff.Content}}</code></td>
+ 	</tr>
+diff --git a/web_src/js/features/repo-issue.js b/web_src/js/features/repo-issue.js
+index 0523c3fb0..ce4981fbe 100644
+--- a/web_src/js/features/repo-issue.js
++++ b/web_src/js/features/repo-issue.js
+@@ -504,7 +504,9 @@ export function initRepoPullRequestReview() {
+             <td class="lines-type-marker"></td>
+             <td class="add-comment-right"></td>
+           ` : `
+-            <td colspan="3" class="lines-num"></td>
++            <td class="lines-num"></td>
++            <td class="lines-num"></td>
++            <td class="lines-escape"></td>
+             <td class="add-comment-left add-comment-right" colspan="2"></td>
+           `}
+         </tr>`);
+diff --git a/web_src/less/_repository.less b/web_src/less/_repository.less
+index 75ccc8d25..18c463bf1 100644
+--- a/web_src/less/_repository.less
++++ b/web_src/less/_repository.less
+@@ -3186,7 +3186,7 @@ td.blob-excerpt {
+   background: var(--color-diff-inactive);
+ }
+ 
+-.code-diff-split tbody tr td:nth-child(4) {
++.code-diff-split tbody tr td:nth-child(5) {
+   border-left: 1px solid var(--color-secondary);
+ }
+ 
