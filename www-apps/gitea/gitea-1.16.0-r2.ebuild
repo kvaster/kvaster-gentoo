@@ -27,7 +27,7 @@ PATCHES=(
 	"${FILESDIR}"/avatar-url-type.patch
 	"${FILESDIR}"/fix-excerpt.patch
 	"${FILESDIR}"/google-icon.patch
-	"${FILESDIR}"/no-3way-patch.patch
+	"${FILESDIR}"/3way-merge.patch
 )
 
 BDEPEND="build-client? ( >=net-libs/nodejs-10[npm] )"
