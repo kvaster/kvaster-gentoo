@@ -1,0 +1,18 @@
+# Settings for java application
+
+# Wait for shutdown and kill service in case of timeout
+#retry="SIGHUP/30/SIGTERM/15/SIGKILL/15"
+# or wait for shutdown forever
+retry="SIGHUP/5/SIGHUP/15/SIGHUP/30/SIGHUP/180"
+
+# Applicatio memory settings
+#java_opts="${java_opts} -Xmx1G -Xms512M -Xmn128M"
+
+# Application default folders
+java_opts="${java_opts} -Dlog.level=info -Dlog.dir=/var/log/${RC_SVCNAME} -Ddata.dir=/var/lib/${RC_SVCNAME} -Dtmp.dir=/tmp/${RC_SVCNAME}"
+
+# Limits for file descriptors
+fd_limit=1000000
+
+# Application specific java options
+#java_opts="${java_opts} -Dhttpserver.host=0.0.0.0"
