@@ -18,10 +18,6 @@ KEYWORDS="amd64 arm64"
 
 IUSE="cgi ipmi snmp +usb selinux split-usr ssl tcpd xml zeroconf"
 
-PATCHES=(
-	"$FILESDIR"/configure.patch
-)
-
 CDEPEND="
 	acct-group/nut
 	acct-user/nut
