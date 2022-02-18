@@ -1,14 +1,24 @@
 diff --git a/main.go b/main.go
-index f6d3bb9..c85f396 100644
+index f6d3bb9..161a6ea 100644
 --- a/main.go
 +++ b/main.go
-@@ -414,12 +414,17 @@ func main() {
+@@ -414,12 +414,6 @@ func main() {
  		cfg.SplitMessageBytes = 4000
  	}
  
 -	bot_tmp, err := tgbotapi.NewBotAPI(cfg.TelegramToken)
 -	if err != nil {
 -		log.Fatal(err)
+-	}
+-
+-	bot = bot_tmp
+ 	if *debug {
+ 		bot.Debug = true
+ 	}
+@@ -440,6 +434,17 @@ func main() {
+ 		gin.SetMode(gin.ReleaseMode)
+ 	}
+ 
 +	for {
 +		bot_tmp, err := tgbotapi.NewBotAPI(cfg.TelegramToken)
 +		if err == nil {
@@ -18,9 +28,8 @@ index f6d3bb9..c85f396 100644
 +			log.Printf("Error initializing telegram connection: %s", err)
 +			time.Sleep(time.Second)
 +		}
- 	}
++	}
++
+ 	log.Printf("Authorised on account %s", bot.Self.UserName)
  
--	bot = bot_tmp
- 	if *debug {
- 		bot.Debug = true
- 	}
+ 	if cfg.SendOnly {
