@@ -5,9 +5,9 @@ jemalloc is linked for those, and they're ran under portage's sandbox. Since
 this is only used during build-time, and jemalloc is merely necessary to
 improve runtime memory use, it's unnecessary to use it for anything else.
 
---- tdesktop-3.1.0-full.orig/Telegram/CMakeLists.txt
-+++ tdesktop-3.1.0-full/Telegram/CMakeLists.txt
-@@ -1256,6 +1256,11 @@
+--- tdesktop-3.4.8-full.orig/Telegram/CMakeLists.txt
++++ tdesktop-3.4.8-full/Telegram/CMakeLists.txt
+@@ -1331,6 +1331,11 @@
          endif()
      endif()
  else()
@@ -19,17 +19,13 @@ improve runtime memory use, it's unnecessary to use it for anything else.
      if (NOT DESKTOP_APP_DISABLE_DBUS_INTEGRATION)
          target_link_libraries(Telegram
          PRIVATE
---- tdesktop-3.1.0-full.orig/cmake/options_linux.cmake
-+++ tdesktop-3.1.0-full/cmake/options_linux.cmake
-@@ -45,11 +45,6 @@
-     target_link_options(common_options INTERFACE $<IF:$<CONFIG:Debug>,,-g -flto -fuse-linker-plugin>)
- endif()
+--- tdesktop-3.4.8-full.orig/cmake/options_linux.cmake
++++ tdesktop-3.4.8-full/cmake/options_linux.cmake
+@@ -65,7 +65,6 @@
  
--target_link_libraries(common_options
--INTERFACE
+ target_link_libraries(common_options
+ INTERFACE
 -    desktop-app::external_jemalloc
--)
--
- if (DESKTOP_APP_USE_ALLOCATION_TRACER)
-     target_link_options(common_options
-     INTERFACE
+     ${CMAKE_DL_LIBS}
+ )
+ 
