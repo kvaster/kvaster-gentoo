@@ -64,6 +64,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.2-no-compass.patch"
 	"${FILESDIR}/${PN}-5.0.2-skip-no-exceptions.patch"
 	"${FILESDIR}/${PN}-5.0.2-skip-reqs-check.patch"
+	"${FILESDIR}/fstream-01.patch"
+	"${FILESDIR}/fstream-02.patch"
+	"${FILESDIR}/fstream-03.patch"
 )
 
 S="${WORKDIR}/${MY_P}"
@@ -156,7 +159,7 @@ src_install() {
 	newins "${FILESDIR}/${PN}.conf-r3" ${PN}.conf
 	newins "${FILESDIR}/mongos.conf-r2" mongos.conf
 
-	systemd_dounit "${FILESDIR}/${PN}.service"
+	systemd_newunit "${FILESDIR}/${PN}.service-r1" "${PN}.service"
 
 	insinto /etc/logrotate.d/
 	newins "${FILESDIR}/${PN}.logrotate" ${PN}

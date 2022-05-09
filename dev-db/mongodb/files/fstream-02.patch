@@ -1,0 +1,48 @@
+diff --git a/src/mongo/db/auth/security_key_test.cpp b/src/mongo/db/auth/security_key_test.cpp
+index 1902eb93..69edc3cf 100644
+--- a/src/mongo/db/auth/security_key_test.cpp
++++ b/src/mongo/db/auth/security_key_test.cpp
+@@ -30,6 +30,7 @@
+ #include "mongo/platform/basic.h"
+ 
+ #include <boost/filesystem.hpp>
++#include <boost/filesystem/fstream.hpp>
+ 
+ #include "mongo/base/string_data.h"
+ #include "mongo/db/auth/authorization_manager.h"
+diff --git a/src/mongo/db/storage/storage_repair_observer.cpp b/src/mongo/db/storage/storage_repair_observer.cpp
+index 22b76a6a..453f4822 100644
+--- a/src/mongo/db/storage/storage_repair_observer.cpp
++++ b/src/mongo/db/storage/storage_repair_observer.cpp
+@@ -42,6 +42,7 @@
+ #endif
+ 
+ #include <boost/filesystem/path.hpp>
++#include <boost/filesystem/fstream.hpp>
+ 
+ #include "mongo/db/dbhelpers.h"
+ #include "mongo/db/operation_context.h"
+diff --git a/src/mongo/db/storage/wiredtiger/wiredtiger_kv_engine_test.cpp b/src/mongo/db/storage/wiredtiger/wiredtiger_kv_engine_test.cpp
+index a7b73907..80702889 100644
+--- a/src/mongo/db/storage/wiredtiger/wiredtiger_kv_engine_test.cpp
++++ b/src/mongo/db/storage/wiredtiger/wiredtiger_kv_engine_test.cpp
+@@ -34,6 +34,7 @@
+ #include "mongo/db/storage/kv/kv_engine_test_harness.h"
+ 
+ #include <boost/filesystem.hpp>
++#include <boost/filesystem/fstream.hpp>
+ #include <boost/filesystem/path.hpp>
+ #include <memory>
+ 
+diff --git a/src/mongo/db/storage/wiredtiger/wiredtiger_util.cpp b/src/mongo/db/storage/wiredtiger/wiredtiger_util.cpp
+index 07fabadd..034bb429 100644
+--- a/src/mongo/db/storage/wiredtiger/wiredtiger_util.cpp
++++ b/src/mongo/db/storage/wiredtiger/wiredtiger_util.cpp
+@@ -36,6 +36,7 @@
+ #include <limits>
+ 
+ #include <boost/filesystem.hpp>
++#include <boost/filesystem/fstream.hpp>
+ #include <boost/filesystem/path.hpp>
+ 
+ #include "mongo/base/simple_string_data_comparator.h"

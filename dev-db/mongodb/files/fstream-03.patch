@@ -1,0 +1,12 @@
+diff --git a/src/mongo/util/processinfo_linux.cpp b/src/mongo/util/processinfo_linux.cpp
+index eae0e9b7..7a8da412 100644
+--- a/src/mongo/util/processinfo_linux.cpp
++++ b/src/mongo/util/processinfo_linux.cpp
+@@ -34,6 +34,7 @@
+ #include "processinfo.h"
+ 
+ #include <iostream>
++#include <fstream>
+ #include <malloc.h>
+ #include <pcrecpp.h>
+ #include <sched.h>
