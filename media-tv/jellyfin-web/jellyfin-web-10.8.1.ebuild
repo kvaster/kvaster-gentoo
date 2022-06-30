@@ -30,7 +30,7 @@ BDEPEND="net-libs/nodejs[npm]"
 
 src_compile() {
 	npm install || die
-	npm build:production || die
+	npm run build:production || die
 }
 
 src_install() {
