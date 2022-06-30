@@ -26,10 +26,11 @@ RESTRICT="mirror network-sandbox"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
-BDEPEND="sys-apps/yarn"
+BDEPEND="net-libs/nodejs[npm]"
 
 src_compile() {
-	yarn install || die
+	npm install || die
+	npm build:production || die
 }
 
 src_install() {
