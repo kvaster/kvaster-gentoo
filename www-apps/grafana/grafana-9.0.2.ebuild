@@ -45,7 +45,7 @@ src_compile() {
 	#go run build.go build || die "compile failed"
 	make build-go || die "compile failed"
 	einfo "Build frontend "
-	yarn run build || die "compile failed"
+	NODE_OPTIONS=--max_old_space_size=8192 yarn run build || die "compile failed"
 	yarn run plugins:build-bundled || die "compile failed"
 }
 
