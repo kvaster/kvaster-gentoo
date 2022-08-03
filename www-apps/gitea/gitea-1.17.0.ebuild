@@ -11,7 +11,7 @@ HOMEPAGE="https://gitea.io"
 if [[ ${PV} != 9999* ]] ; then
 	SRC_URI="https://github.com/go-gitea/gitea/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
-	S="${WORKDIR}"
+	S="${WORKDIR}/${P}"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
 	inherit git-r3
@@ -23,7 +23,7 @@ SLOT="0"
 IUSE="+acct build-client pam sqlite"
 
 PATCHES=(
-	"${FILESDIR}"/rebase-prs-onmerge-1.16.patch
+	"${FILESDIR}"/retarget-prs-onmerge-1.17.patch
 )
 
 BDEPEND="build-client? ( >=net-libs/nodejs-10[npm] )"
