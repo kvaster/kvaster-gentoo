@@ -10,7 +10,7 @@ MY_P="${PN}-source-${PV}-1"
 DESCRIPTION="IJ Printer Driver"
 HOMEPAGE="https://www.canon.it/"
 #SRC_URI="https://dev.gentoo.org/~tupone/distfiles/${MY_P}.tar.gz"
-SRC_URI="https://gdlp01.c-wss.com/gds/1/0100010921/01/cnijfilter2-source-6.10-1.tar.gz"
+SRC_URI="https://gdlp01.c-wss.com/gds/9/0100011319/01/cnijfilter2-source-6.30-1.tar.gz"
 
 LICENSE="Canon-IJ"
 SLOT="0"
@@ -25,7 +25,7 @@ RDEPEND="${DEPEND}"
 QA_FLAGS_IGNORED=(
 	/usr/lib64/libcnbpnet30.so.1.0.0
 	/usr/lib64/libcnbpcnclapicom2.so.5.0.0
-	/usr/lib64/libcnnet2.so.1.2.4
+	/usr/lib64/libcnnet2.so.1.2.5
 	/usr/lib64/libcnbpnet20.so.1.0.0
 	/usr/bin/cnijlgmon3
 )
@@ -33,7 +33,7 @@ QA_FLAGS_IGNORED=(
 S="${WORKDIR}"/${MY_P}
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.70-gentoo.patch
+	"${FILESDIR}"/${PN}-6.30-gentoo.patch
 	"${FILESDIR}"/${PN}-5.80-cflags.patch
 	"${FILESDIR}"/${PN}-5.80-fno-common.patch
 )
@@ -41,7 +41,7 @@ PATCHES=(
 src_prepare() {
 	default
 	DIRS="cmdtocanonij2 cmdtocanonij3 cnijbe2 lgmon3 rastertocanonij tocanonij tocnpwg"
-	LIBDIR=com/libs_bin$(usex amd64 64 32)
+	LIBDIR=com/libs_bin_$(usex amd64 x86_64 i686)
 	for d in ${DIRS}; do
 		mv "${d}"/configure.{in,ac} || die
 	done
@@ -61,7 +61,7 @@ src_prepare() {
 	ln -sf libcnbpcnclapicom2.so.5.0.0 libcnbpcnclapicom2.so || die
 	ln -sf libcnbpnet20.so.1.0.0 libcnbpnet20.so || die
 	ln -sf libcnbpnet30.so.1.0.0 libcnbpnet30.so || die
-	ln -sf libcnnet2.so.1.2.4 libcnnet2.so || die
+	ln -sf libcnnet2.so.1.2.5 libcnnet2.so || die
 
 	cd -
 }
