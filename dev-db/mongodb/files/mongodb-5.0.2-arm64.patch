@@ -1,0 +1,18 @@
+diff --git a/src/mongo/db/stats/counters.h b/src/mongo/db/stats/counters.h
+index aa11c84c2f1..710d75a672f 100644
+--- a/src/mongo/db/stats/counters.h
++++ b/src/mongo/db/stats/counters.h
+@@ -178,10 +178,10 @@ private:
+     // These two counters are always incremented at the same time, so
+     // we place them on the same cache line.
+     struct Together {
+-        AtomicWord<long long> logicalBytesIn{0};
+-        AtomicWord<long long> requests{0};
++        alignas(std::hardware_constructive_interference_size) AtomicWord<long long> logicalBytesIn{0};
++        alignas(std::hardware_constructive_interference_size) AtomicWord<long long> requests{0};
+     };
+-    CacheAligned<Together> _together{};
++    Together _together{};
+     static_assert(sizeof(decltype(_together)) <= stdx::hardware_constructive_interference_size,
+                   "cache line spill");
+ 

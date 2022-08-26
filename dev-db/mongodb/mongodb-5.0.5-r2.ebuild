@@ -67,6 +67,7 @@ PATCHES=(
 	"${FILESDIR}/fstream-01.patch"
 	"${FILESDIR}/fstream-02.patch"
 	"${FILESDIR}/fstream-03.patch"
+	"${FILESDIR}/${PN}-5.0.2-arm64.patch"
 )
 
 S="${WORKDIR}/${MY_P}"
