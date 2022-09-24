@@ -1,0 +1,22 @@
+diff --git a/Emby.Server.Implementations/Data/BaseSqliteRepository.cs b/Emby.Server.Implementations/Data/BaseSqliteRepository.cs
+index 8c756a7f4..d1bc3a915 100644
+--- a/Emby.Server.Implementations/Data/BaseSqliteRepository.cs
++++ b/Emby.Server.Implementations/Data/BaseSqliteRepository.cs
+@@ -62,7 +62,7 @@ namespace Emby.Server.Implementations.Data
+         /// Gets the journal mode. <see href="https://www.sqlite.org/pragma.html#pragma_journal_mode" />
+         /// </summary>
+         /// <value>The journal mode.</value>
+-        protected virtual string JournalMode => "TRUNCATE";
++        protected virtual string JournalMode => "WAL";
+ 
+         /// <summary>
+         /// Gets the page size.
+@@ -82,7 +82,7 @@ namespace Emby.Server.Implementations.Data
+         /// </summary>
+         /// <value>The synchronous mode or null.</value>
+         /// <see cref="SynchronousMode"/>
+-        protected virtual SynchronousMode? Synchronous => null;
++        protected virtual SynchronousMode? Synchronous => 0;
+ 
+         /// <summary>
+         /// Gets or sets the write lock.
