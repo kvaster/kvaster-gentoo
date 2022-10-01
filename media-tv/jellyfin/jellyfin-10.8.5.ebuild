@@ -42,6 +42,10 @@ BDEPEND="dev-dotnet/dotnetcore-sdk-bin"
 
 METAFILETOBUILD="MediaBrowser.sln"
 
+PATCHES=(
+	"$FILESDIR"/sqlite-wal.patch
+)
+
 src_compile() {
 	export DOTNET_CLI_TELEMETRY_OPTOUT=1
 	dotnet build --configuration Release Jellyfin.Server || die
