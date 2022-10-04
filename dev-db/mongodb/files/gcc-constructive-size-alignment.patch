@@ -1,0 +1,13 @@
+diff --git a/src/mongo/db/stats/counters.h b/src/mongo/db/stats/counters.h
+index 41185d48..b3c49b9e 100644
+--- a/src/mongo/db/stats/counters.h
++++ b/src/mongo/db/stats/counters.h
+@@ -218,7 +218,7 @@ private:
+     // we place them on the same cache line.
+     struct Together {
+         alignas(std::hardware_constructive_interference_size) AtomicWord<long long> logicalBytesIn{0};
+-        alignas(std::hardware_constructive_interference_size) AtomicWord<long long> requests{0};
++        /*alignas(std::hardware_constructive_interference_size)*/ AtomicWord<long long> requests{0};
+     };
+     Together _together{};
+     static_assert(sizeof(decltype(_together)) <= stdx::hardware_constructive_interference_size,
