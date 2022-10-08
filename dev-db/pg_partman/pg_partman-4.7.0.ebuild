@@ -3,22 +3,22 @@
 
 EAPI=7
 
-POSTGRES_COMPAT=( 10 11 12 13 14 )
+POSTGRES_COMPAT=( 10 11 12 13 14 15 )
 POSTGRES_USEDEP="server"
 
 inherit postgres-multi
 
 SLOT="0"
 
-DESCRIPTION="PostgreSQL extension which provides persistent logging within transactions and functions."
-HOMEPAGE="https://github.com/omniti-labs/pg_jobmon"
+DESCRIPTION="Partition management extension for PostgreSQL"
+HOMEPAGE="https://github.com/pgpartman/pg_partman"
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/omniti-labs/${PN}.git"
+	EGIT_REPO_URI="https://github.com/pgpartman/${PN}.git"
 	KEYWORDS=""
 else
-	SRC_URI="https://github.com/omniti-labs/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/pgpartman/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~x86"
 fi
 
@@ -31,3 +31,4 @@ DEPEND="
 	${POSTGRES_DEP}
 "
 RDEPEND="${DEPEND}"
+
