@@ -12,3 +12,5 @@ To be removed when ebuild in main repo will be available:
 [ ] sys-cluster/k9scli
 [ ] net-im/telegram-desktop
 
+To be removed when fix will be available
+[ ] dev-lisp/sbcl
