@@ -5,7 +5,7 @@
 
 EAPI=7
 
-inherit eutils user
+inherit eutils
 
 JMX_PRO_JA_VER="0.15.0"
 ZSTD_VER="0.0.2"
@@ -20,13 +20,17 @@ SRC_URI="https://archive.apache.org/dist/cassandra/${VER_NS}/apache-cassandra-${
 LICENSE="Apache-2.0"
 SLOT="6"
 KEYWORDS="~amd64 ~x86"
+CDEPEND="acct-group/cassandra
+	acct-user/cassandra"
 DEPEND=">=virtual/jdk-1.8
 	app-arch/unzip
 	dev-java/java-config
-	dev-java/jna"
+	dev-java/jna
+	${CDEPEND}"
 RDEPEND=">=virtual/jdk-1.8
 	dev-java/jna
-	dev-libs/jemalloc"
+	dev-libs/jemalloc
+	${CDEPEND}"
 
 S="${WORKDIR}"/apache-cassandra-${VER}
 
