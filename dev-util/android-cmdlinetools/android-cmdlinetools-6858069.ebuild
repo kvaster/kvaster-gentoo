@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit eutils user
+inherit eutils
 
 DESCRIPTION="Open Handset Alliance's Android SDK command line tools"
 HOMEPAGE="https://developer.android.com"

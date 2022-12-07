@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit eutils user udev
+inherit eutils udev
 
 DESCRIPTION="Environment for installing Open Handset Alliance's Android SDK"
 HOMEPAGE="https://developer.android.com"
@@ -14,16 +14,12 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 RESTRICT="mirror"
 
-DEPEND=""
-RDEPEND="${DEPEND}"
+RDEPEND="acct-group/android"
+DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"
 
 ANDROID_SDK_DIR="/opt/android-sdk"
-
-pkg_setup() {
-	enewgroup android
-}
 
 src_install() {
 	keepdir "${ANDROID_SDK_DIR}"
