@@ -13,3 +13,5 @@ To be removed when ebuild in main repo will be available:
 
 To be removed when fix will be available
 [ ] dev-lisp/sbcl
+[ ] mail-mta/exim
+
