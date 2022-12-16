@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit user go-module
+inherit go-module
 
 DESCRIPTION="Network UPS Tools (NUT) Prometheus Exporter"
 HOMEPAGE="https://github.com/DRuggeri/nut_exporter"
