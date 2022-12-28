@@ -11,7 +11,8 @@ HOMEPAGE="https://gitea.io"
 if [[ ${PV} != 9999* ]] ; then
 	SRC_URI="https://github.com/go-gitea/gitea/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
-	S="${WORKDIR}/${P}"
+	#S="${WORKDIR}/${P}"
+	S="${WORKDIR}/gitea-src-${PV}"
 else
 	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
 	inherit git-r3
