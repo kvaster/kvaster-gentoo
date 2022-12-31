@@ -70,6 +70,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.5-no-force-lld.patch"
 	"${FILESDIR}/${PN}-5.0.2-arm64.patch"
 	"${FILESDIR}/gcc-constructive-size-alignment.patch"
+	"${FILESDIR}/gcc-fix-template-set-map.patch"
 )
 
 S="${WORKDIR}/${MY_P}"
