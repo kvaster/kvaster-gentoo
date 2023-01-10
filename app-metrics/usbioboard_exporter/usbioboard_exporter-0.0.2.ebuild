@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit user go-module
+inherit go-module
 
 DESCRIPTION="Prometheus metrics exporter for usb io board by hardkernel"
 HOMEPAGE="https://github.com/kvaster/usbioboard_exporter"
