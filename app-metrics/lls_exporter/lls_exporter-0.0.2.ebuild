@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit user go-module
+inherit go-module
 
 DESCRIPTION="LLS Exporter for rs485/rs232 lls fuel level sensors"
 HOMEPAGE="https://github.com/kvaster/lls_exporter"
