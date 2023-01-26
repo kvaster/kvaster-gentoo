@@ -1,50 +1,47 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 2016-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-inherit fcaps go-module tmpfiles systemd
-MY_PV="${PV/_rc/-rc}"
+EAPI=8
+
+inherit fcaps go-module tmpfiles systemd flag-o-matic
 
 DESCRIPTION="A painless self-hosted Git service"
-HOMEPAGE="https://gitea.io"
+HOMEPAGE="https://gitea.io https://github.com/go-gitea/gitea"
 
-if [[ ${PV} != 9999* ]] ; then
-	SRC_URI="https://github.com/go-gitea/gitea/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64"
-	S="${WORKDIR}/${P}"
-else
-	EGIT_REPO_URI="https://github.com/go-gitea/gitea"
+if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	S="${WORKDIR}/${P}"
+	EGIT_REPO_URI="https://github.com/go-gitea/gitea.git"
+else
+	SRC_URI="https://github.com/go-gitea/gitea/releases/download/v${PV}/gitea-src-${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
 fi
+
+S="${WORKDIR}/${PN}-src-${PV}"
 
 LICENSE="Apache-2.0 BSD BSD-2 ISC MIT MPL-2.0"
 SLOT="0"
-IUSE="+acct build-client pam sqlite"
+IUSE="+acct pam sqlite pie"
 
 PATCHES=(
 	"${FILESDIR}"/retarget-prs-onmerge-1.17.patch
 )
 
-BDEPEND="build-client? ( >=net-libs/nodejs-10[npm] )"
-COMMON_DEPEND="
+DEPEND="
 	acct? (
 		acct-group/git
 		acct-user/git[gitea] )
 	pam? ( sys-libs/pam )"
-DEPEND="${COMMON_DEPEND}"
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	dev-vcs/git"
 
 DOCS=(
 	custom/conf/app.example.ini CONTRIBUTING.md README.md
 )
 FILECAPS=(
-	-m 0755 cap_net_bind_service+ep usr/bin/gitea
+	-m 711 cap_net_bind_service+ep usr/bin/gitea
 )
 
 RESTRICT="test network-sandbox"
-QA_PRESTRIPPED="usr/bin/gitea"
 
 src_prepare() {
 	default
@@ -65,12 +62,14 @@ src_prepare() {
 		sed -i -e "s#^DB_TYPE = .*#DB_TYPE = sqlite3#" custom/conf/app.example.ini || die
 	fi
 
-	einfo "Remove tests which depend on gitea git-repo."
-	rm ./modules/git/blob_test.go || die
-	rm ./modules/git/repo_test.go || die
-
 	# Remove already build assets (like frontend part)
-	use build-client && emake clean-all
+	emake clean-all
+}
+
+src_configure() {
+	# bug 832756 - PIE build issues
+	filter-flags -fPIE
+	filter-ldflags -fPIE -pie
 }
 
 src_compile() {
@@ -85,18 +84,17 @@ src_compile() {
 		"-X code.gitea.io/gitea/modules/setting.AppWorkPath=${EPREFIX}/var/lib/gitea"
 	)
 	local makeenv=(
-		TAGS="${gitea_tags[*]}"
+		DRONE_TAG="${PV}"
 		LDFLAGS="-extldflags \"${LDFLAGS}\" ${gitea_settings[*]}"
+		TAGS="${gitea_tags[*]}"
 	)
-	[[ ${PV} != 9999* ]] && makeenv+=("DRONE_TAG=${MY_PV}")
 
-	if use build-client; then
-		# -j1 as Makefile doesn't handle dependancy correctly, and is not
-		# useful as golang compiler don't use this info.
-		env "${makeenv[@]}" emake -j1 build
-	else
-		env "${makeenv[@]}" emake backend
+	GOFLAGS=""
+	if use pie ; then
+		GOFLAGS+="-buildmode=pie"
 	fi
+
+	env "${makeenv[@]}" emake EXTRA_GOFLAGS="${GOFLAGS}" -j1 build
 }
 
 src_install() {
@@ -113,7 +111,7 @@ src_install() {
 
 	insinto /etc/gitea
 	newins custom/conf/app.example.ini app.ini
-	if use acct ; then
+	if use acct; then
 		fowners root:git /etc/gitea/{,app.ini}
 		fperms g+w,o-rwx /etc/gitea/{,app.ini}
 
@@ -125,6 +123,10 @@ src_install() {
 
 pkg_postinst() {
 	fcaps_pkg_postinst
-	go-module_pkg_postinst
 	tmpfiles_process gitea.conf
+
+	ewarn "The default JWT signing algorithm changed in 1.15.0 from HS256 (symmetric) to"
+	ewarn "RS256 (asymmetric). Gitea OAuth2 tokens (and potentially client secrets) will"
+	ewarn "need to be regenerated unless you change your JWT_SIGNING_ALGORITHM back to HS256."
+	ewarn "For other breaking changes, see <https://github.com/go-gitea/gitea/releases/tag/v1.15.0>."
 }
