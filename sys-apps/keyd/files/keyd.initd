@@ -1,0 +1,11 @@
+#!/sbin/openrc-run
+# Copyright 2016-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="Key remapping daemon which remaps keys using kernel level input primitives"
+pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
+command_user=${command_user:-root:${SVCNAME}}
+
+command="/usr/bin/keyd"
+command_background=true
+retry="${retry:-TERM/20/KILL/5}"
