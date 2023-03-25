@@ -1,7 +1,7 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 inherit go-module systemd
 
 DESCRIPTION="Kubernetes Node Agent"
@@ -10,10 +10,11 @@ SRC_URI="https://github.com/kubernetes/kubernetes/archive/v${PV}.tar.gz -> kuber
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64"
-IUSE="hardened"
+KEYWORDS="amd64 ~arm64"
+IUSE="hardened selinux"
 
-BDEPEND=">=dev-lang/go-1.18.1"
+BDEPEND=">=dev-lang/go-1.19"
+RDEPEND="selinux? ( sec-policy/selinux-kubernetes )"
 
 RESTRICT+=" test "
 S="${WORKDIR}/kubernetes-${PV}"
