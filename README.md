@@ -8,10 +8,10 @@ To be removed when ebuild in main repo will be available with cient building opt
 To be removed when mongodb will be compiled with native optimizations
 [ ] dev-db/mongodb
 
-To be removed when ebuild in main repo will be available:
-[ ] sys-cluster/k9scli
-
 To be removed when fix will be available
 [ ] dev-lisp/sbcl
 [ ] mail-mta/exim
+
+To be removed when ruby32 will be added in main repo
+[ ] net-libs/webkit-gtk
 
