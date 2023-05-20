@@ -38,7 +38,7 @@ RDEPEND="${DEPEND}
 		app-crypt/mit-krb5
 		dev-libs/icu
 		dev-libs/openssl"
-BDEPEND="dev-dotnet/dotnetcore-sdk-bin"
+BDEPEND="virtual/dotnet-sdk"
 
 METAFILETOBUILD="MediaBrowser.sln"
 
