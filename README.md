@@ -15,3 +15,7 @@ To be removed when fix will be available
 To be removed when ruby32 will be added in main repo
 [ ] net-libs/webkit-gtk
 
+Need to check with upstream:
+[ ] app-laptop/tlp
+[ ] media-tv/jellyfin
+
