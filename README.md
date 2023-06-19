@@ -19,3 +19,6 @@ Need to check with upstream:
 [ ] app-laptop/tlp
 [ ] media-tv/jellyfin
 
+Remove when will new version will be avilable
+[ ] net-im/slack
+
