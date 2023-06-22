@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person" proxied="yes">
+		<email>marcin.deranek@slonko.net</email>
+		<name>Marcin Deranek</name>
+	</maintainer>
+	<longdescription lang="en">
+		Epson Scan 2 is Linux software for Epson scanners and multifunction printer.
+		Epson Scan 2 has own front-end, it allows to set various scanner settings
+		with graphical user interface and save the scanned images to the various file type.
+		It supports USB and network connection for the network capable scanners.
+		Scanner can be controlled via not only own front-end but also command line option.
+	</longdescription>
+	<use>
+		<flag name="bundled-libs">Use bundled libs</flag>
+	</use>
+</pkgmetadata>
