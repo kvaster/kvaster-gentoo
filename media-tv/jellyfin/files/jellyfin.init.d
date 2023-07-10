@@ -8,6 +8,8 @@ user="${JELLYFIN_USER}:${JELLYFIN_USER}"
 
 start_stop_daemon_args="--user $user --wait 10"
 
+retry="${retry:-HUP/30/TERM/20/KILL/5}"
+
 command="/usr/bin/jellyfin"
 command_args="--configdir $JELLYFIN_CONFIG_DIR
 	--datadir $JELLYFIN_DATA_DIR
