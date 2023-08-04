@@ -1,8 +1,8 @@
 diff --git a/custom/conf/app.example.ini b/custom/conf/app.example.ini
-index 674d19413..96cfa4247 100644
+index f1bcd7d67..350ff0374 100644
 --- a/custom/conf/app.example.ini
 +++ b/custom/conf/app.example.ini
-@@ -1050,6 +1050,9 @@ ROUTER = console
+@@ -1036,6 +1036,9 @@ LEVEL = Info
  ;;
  ;; In addition to testing patches using the three-way merge method, re-test conflicting patches with git apply
  ;TEST_CONFLICTING_PATCHES_WITH_GIT_APPLY = false
@@ -12,10 +12,10 @@ index 674d19413..96cfa4247 100644
  
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-diff --git a/docs/content/doc/advanced/config-cheat-sheet.en-us.md b/docs/content/doc/advanced/config-cheat-sheet.en-us.md
-index 8cf003a33..89a4d2aaa 100644
---- a/docs/content/doc/advanced/config-cheat-sheet.en-us.md
-+++ b/docs/content/doc/advanced/config-cheat-sheet.en-us.md
+diff --git a/docs/content/administration/config-cheat-sheet.en-us.md b/docs/content/administration/config-cheat-sheet.en-us.md
+index 417f617c8..168e75fd6 100644
+--- a/docs/content/administration/config-cheat-sheet.en-us.md
++++ b/docs/content/administration/config-cheat-sheet.en-us.md
 @@ -137,6 +137,7 @@ In addition there is _`StaticRootPath`_ which can be set as a built-in at build
  - `POPULATE_SQUASH_COMMENT_WITH_COMMIT_MESSAGES`: **false**: In default squash-merge messages include the commit message of all commits comprising the pull request.
  - `ADD_CO_COMMITTER_TRAILERS`: **true**: Add co-authored-by and co-committed-by trailers to merge commit messages if committer does not match author.
@@ -25,7 +25,7 @@ index 8cf003a33..89a4d2aaa 100644
  ### Repository - Issue (`repository.issue`)
  
 diff --git a/modules/setting/repository.go b/modules/setting/repository.go
-index 4964704db..3bd7bfdbd 100644
+index 42ffb9913..3119f31fc 100644
 --- a/modules/setting/repository.go
 +++ b/modules/setting/repository.go
 @@ -85,6 +85,7 @@ var (
@@ -36,7 +36,7 @@ index 4964704db..3bd7bfdbd 100644
  		} `ini:"repository.pull-request"`
  
  		// Issue Setting
-@@ -210,6 +211,7 @@ var (
+@@ -209,6 +210,7 @@ var (
  			PopulateSquashCommentWithCommitMessages  bool
  			AddCoCommitterTrailers                   bool
  			TestConflictingPatchesWithGitApply       bool
@@ -44,7 +44,7 @@ index 4964704db..3bd7bfdbd 100644
  		}{
  			WorkInProgressPrefixes: []string{"WIP:", "[WIP]"},
  			// Same as GitHub. See
-@@ -224,6 +226,7 @@ var (
+@@ -223,6 +225,7 @@ var (
  			DefaultMergeMessageOfficialApproversOnly: true,
  			PopulateSquashCommentWithCommitMessages:  false,
  			AddCoCommitterTrailers:                   true,
@@ -53,7 +53,7 @@ index 4964704db..3bd7bfdbd 100644
  
  		// Issue settings
 diff --git a/routers/api/v1/repo/pull.go b/routers/api/v1/repo/pull.go
-index 84eebeb94..9a9f59785 100644
+index a507c1f44..c767bb4db 100644
 --- a/routers/api/v1/repo/pull.go
 +++ b/routers/api/v1/repo/pull.go
 @@ -904,6 +904,11 @@ func MergePullRequest(ctx *context.APIContext) {
@@ -65,14 +65,14 @@ index 84eebeb94..9a9f59785 100644
 +			ctx.Error(http.StatusInternalServerError, "RetargetChildrenOnMerge", err)
 +			return
 +		}
- 		if err := repo_service.DeleteBranch(ctx.Doer, pr.HeadRepo, headRepo, pr.HeadBranch); err != nil {
+ 		if err := repo_service.DeleteBranch(ctx, ctx.Doer, pr.HeadRepo, headRepo, pr.HeadBranch); err != nil {
  			switch {
  			case git.IsErrBranchNotExist(err):
 diff --git a/routers/web/repo/pull.go b/routers/web/repo/pull.go
-index 830c8ad62..b32ac4138 100644
+index e570c1753..b021ad8dc 100644
 --- a/routers/web/repo/pull.go
 +++ b/routers/web/repo/pull.go
-@@ -1399,6 +1399,13 @@ func CleanUpPullRequest(ctx *context.Context) {
+@@ -1414,6 +1414,13 @@ func CleanUpPullRequest(ctx *context.Context) {
  
  func deleteBranch(ctx *context.Context, pr *issues_model.PullRequest, gitRepo *git.Repository) {
  	fullBranchName := pr.HeadRepo.FullName() + ":" + pr.HeadBranch
@@ -83,14 +83,14 @@ index 830c8ad62..b32ac4138 100644
 +		return
 +	}
 +
- 	if err := repo_service.DeleteBranch(ctx.Doer, pr.HeadRepo, gitRepo, pr.HeadBranch); err != nil {
+ 	if err := repo_service.DeleteBranch(ctx, ctx.Doer, pr.HeadRepo, gitRepo, pr.HeadBranch); err != nil {
  		switch {
  		case git.IsErrBranchNotExist(err):
 diff --git a/services/pull/pull.go b/services/pull/pull.go
-index a5541b846..765b58d5a 100644
+index 8f2befa8f..cf87f3d7e 100644
 --- a/services/pull/pull.go
 +++ b/services/pull/pull.go
-@@ -497,6 +497,43 @@ func (errs errlist) Error() string {
+@@ -495,6 +495,43 @@ func (errs errlist) Error() string {
  	return ""
  }
  
@@ -133,4 +133,4 @@ index a5541b846..765b58d5a 100644
 +
  // CloseBranchPulls close all the pull requests who's head branch is the branch
  func CloseBranchPulls(doer *user_model.User, repoID int64, branch string) error {
- 	prs, err := issues_model.GetUnmergedPullRequestsByHeadInfo(repoID, branch, false)
+ 	prs, err := issues_model.GetUnmergedPullRequestsByHeadInfo(repoID, branch)
