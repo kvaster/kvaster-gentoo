@@ -1,0 +1,32 @@
+diff -r fd85f20911b9 bin/jetty.sh
+--- a/bin/jetty.sh	Mon Jun 25 23:31:30 2018 +0300
++++ b/bin/jetty.sh	Mon Jun 25 23:35:11 2018 +0300
+@@ -459,10 +459,10 @@
+       unset CH_USER
+       if [ -n "$JETTY_USER" ]
+       then
+-        CH_USER="-c$JETTY_USER"
++        CH_USER="-u $JETTY_USER"
+       fi
+ 
+-      start-stop-daemon -S -p"$JETTY_PID" $CH_USER -d"$JETTY_BASE" -b -m -a "$JAVA" -- "${RUN_ARGS[@]}" start-log-file="$JETTY_START_LOG"
++      start-stop-daemon -S -p"$JETTY_PID" $CH_USER -d"$JETTY_BASE" -b -m --exec "$JAVA" -- "${RUN_ARGS[@]}" start-log-file="$JETTY_START_LOG"
+ 
+     else
+ 
+@@ -514,12 +514,12 @@
+   stop)
+     echo -n "Stopping Jetty: "
+     if [ $UID -eq 0 ] && type start-stop-daemon > /dev/null 2>&1; then
+-      start-stop-daemon -K -p"$JETTY_PID" -d"$JETTY_HOME" -a "$JAVA" -s HUP
++      start-stop-daemon -K -p"$JETTY_PID" -d"$JETTY_HOME" --exec "$JAVA" -s HUP
+ 
+-      TIMEOUT=30
++      TIMEOUT=1800
+       while running "$JETTY_PID"; do
+         if (( TIMEOUT-- == 0 )); then
+-          start-stop-daemon -K -p"$JETTY_PID" -d"$JETTY_HOME" -a "$JAVA" -s KILL
++	  start-stop-daemon -K -p"$JETTY_PID" -d"$JETTY_HOME" -exec "$JAVA" -s KILL
+         fi
+ 
+         sleep 1

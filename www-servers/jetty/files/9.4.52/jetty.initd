@@ -1,0 +1,56 @@
+#!/sbin/openrc-run
+# Copyright 2021 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+extra_commands="safestop status check"
+
+[ -z "${JAVA_OPTIONS}" ] && JAVA_OPTIONS=""
+[ -z "${JETTY_LOGS}" ] && JETTY_LOGS="/var/log/${RC_SVCNAME}"
+[ -z "${JETTY_CONF}" ] && JETTY_CONF="/etc/${RC_SVCNAME}/jetty.conf"
+[ -z "${JETTY_BASE}" ] && JETTY_BASE="/var/lib/${RC_SVCNAME}"
+
+JETTY_RUN=/var/run/
+JETTY_PID=${JETTY_RUN}/${RC_SVCNAME}.pid
+
+JETTY_START_LOG="${JETTY_LOGS}/start.log"
+
+# legacy logs
+JAVA_OPTIONS+=("-Djetty.logs=${JETTY_LOGS}")
+
+depend() {
+	need net
+	use dns logger postgresql mysql 
+}
+
+start()	{
+	ebegin "Starting Jetty"
+	ulimit -n 100000
+	ulimit -l unlimited
+	. ${JETTY_HOME}/bin/jetty.sh start
+	eend $?
+}
+
+stop ()	{
+	ebegin "Stopping Jetty"
+	. ${JETTY_HOME}/bin/jetty.sh stop
+	eend $?
+}
+
+safestop() {
+	ebegin "Stopping Jetty by safe way"
+	kill -HUP `cat ${JETTY_PID}`
+	eend $?
+}
+
+check() {
+	ebegin "Jetty check"
+	. ${JETTY_HOME}/bin/jetty.sh check
+	eend $?
+}
+
+status() {
+	ebegin "Jetty status"
+	. ${JETTY_HOME}/bin/jetty.sh status
+	eend $?
+}
+

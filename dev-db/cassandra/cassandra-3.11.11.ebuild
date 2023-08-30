@@ -3,9 +3,7 @@
 # $Header: $
 # This ebuild come from bangert overlay
 
-EAPI=7
-
-inherit eutils
+EAPI=8
 
 JMX_PRO_JA_VER="0.15.0"
 ZSTD_VER="0.0.2"
@@ -49,11 +47,6 @@ sstableupgrade"
 TOOLS2="sstabledump
 sstablesplit
 "
-
-pkg_setup() {
-	enewgroup cassandra
-	enewuser cassandra -1 /bin/bash ${CASSANDRA_HOME} cassandra
-}
 
 src_compile() {
 	sed -i "s/python/python2/" "${S}/bin/cqlsh"

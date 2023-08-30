@@ -6,7 +6,7 @@ EAPI=7
 POSTGRES_COMPAT=( 10 11 12 13 14 15 )
 POSTGRES_USEDEP="server"
 
-inherit autotools eutils postgres-multi
+inherit autotools postgres-multi
 
 SLOT="0"
 
