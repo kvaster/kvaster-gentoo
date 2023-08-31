@@ -1,9 +1,9 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-inherit autotools toolchain-funcs eutils
+inherit autotools toolchain-funcs
 
 DESCRIPTION="Bind DynDB LDAP backend (replacement for sdb-ldap and dlz)"
 HOMEPAGE="https://pagure.io/bind-dyndb-ldap"

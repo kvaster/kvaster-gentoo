@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=6
+EAPI=8
 
-inherit eutils git-r3
+inherit git-r3
 
 DESCRIPTION="An open-source interface to Z-Wave networks."
 HOMEPAGE="http://open-zwave.googlecode.com"
@@ -20,8 +20,11 @@ SLOT="0"
 DEPEND="dev-libs/libxml2"
 RDEPEND="${RDEPEND}"
 
+PATCHES=(
+	"${FILESDIR}"/makefile.patch
+)
+
 src_compile() {
-	epatch "${FILESDIR}"/makefile.patch || die
 	emake -C cpp/build PREFIX=/usr default pkgconfig || die
 }
 

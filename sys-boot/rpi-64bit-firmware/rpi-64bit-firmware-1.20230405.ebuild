@@ -2,7 +2,7 @@
 # License: GPL v3+
 # NO WARRANTY
 
-EAPI=6
+EAPI=8
 
 DESCRIPTION="Raspberry PI boot loader and firmware, for 64-bit mode"
 HOMEPAGE="https://github.com/raspberrypi/firmware"

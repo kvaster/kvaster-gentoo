@@ -2,7 +2,7 @@
 # License: GPL v3+
 # NO WARRANTY
 
-EAPI=6
+EAPI=8
 
 DESCRIPTION="Raspberry PI {config,cmdline}.txt, for 64-bit mode"
 HOMEPAGE="https://www.raspberrypi.org/documentation/configuration/"

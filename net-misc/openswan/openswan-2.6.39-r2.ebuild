@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/net-misc/openswan/openswan-2.6.39-r1.ebuild,v 1.4 2014/08/10 20:46:00 slyfox Exp $
 
-EAPI="7"
+EAPI=8
 
-inherit eutils linux-info systemd toolchain-funcs flag-o-matic
+inherit linux-info systemd toolchain-funcs flag-o-matic
 
 DESCRIPTION="Open Source implementation of IPsec for the Linux operating system (was SuperFreeS/WAN)"
 HOMEPAGE="http://www.openswan.org/"

@@ -1,32 +1,29 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=8
 
-inherit eutils user java-pkg-2
+inherit java-pkg-2
 
 KEYWORDS="~amd64 ~x86"
 
 DESCRIPTION="Tool that aims to schedule and orchestrate repairs of Apache Cassandra clusters"
 HOMEPAGE="https://github.com/thelastpickle/cassandra-reaper"
-SRC_URI="https://bintray.com/thelastpickle/reaper-tarball/download_file?file_path=cassandra-reaper-1.4.0-release.tar.gz"
+SRC_URI="https://github.com/thelastpickle/cassandra-reaper/releases/download/${PV}/cassandra-reaper-${PV}-release.tar.gz"
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE=""
 
 RDEPEND=">=virtual/jdk-1.8"
 
-DEPEND=">=virtual/jdk-1.8"
+DEPEND="
+	acct-user/cassandra-reaper
+	>=virtual/jdk-1.8
+"
 
 INSTALL_DIR="/opt/cassandra-reaper"
 
-pkg_setup() {
-        enewgroup ${PN}
-        enewuser ${PN} -1 -1 -1 ${PN}
-}
-
 src_install() {
-
         newinitd ${FILESDIR}/${PV}/initd ${PN}
         newconfd ${FILESDIR}/${PV}/confd ${PN}
         
