@@ -8,17 +8,5 @@ To be removed when ebuild in main repo will be available with cient building opt
 To be removed when mongodb will be compiled with native optimizations
 [ ] dev-db/mongodb
 
-To be removed when fix will be available
-[ ] dev-lisp/sbcl
-[ ] mail-mta/exim
-
-To be removed when ruby32 will be added in main repo
-[ ] net-libs/webkit-gtk
-
 Need to check with upstream:
-[ ] app-laptop/tlp
 [ ] media-tv/jellyfin
-
-Remove when will new version will be avilable
-[ ] net-im/slack
-

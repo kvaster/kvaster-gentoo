@@ -9,7 +9,7 @@ KEYWORDS="~amd64 ~x86"
 
 DESCRIPTION="A process for exposing JMX Beans via HTTP for Prometheus consumption"
 HOMEPAGE="https://github.com/prometheus/jmx_exporter"
-SRC_URI="https://repo1.maven.org//maven2/io/prometheus/jmx/jmx_prometheus_httpserver/${PV}/jmx_prometheus_httpserver-${PV}-jar-with-dependencies.jar"
+SRC_URI="https://repo.maven.apache.org/maven2/io/prometheus/jmx/jmx_prometheus_httpserver/${PV}/jmx_prometheus_httpserver-${PV}.jar"
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE=""
