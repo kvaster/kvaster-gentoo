@@ -55,7 +55,7 @@ src_install() {
 	newins conf/ldap.toml ldap.toml
 
 	dobin `(find bin -name grafana-cli)`
-	dobin `(find bin -name grafana-server)`
+	dobin `(find bin -name grafana)`
 
 	insinto "/usr/share/${PN}"
 	doins -r public conf tools
