@@ -11,8 +11,8 @@ description="The tool for beautiful monitoring and metric analytics & dashboards
 : ${SSD_OPTS:="-d /usr/share/grafana -w 1000"}
 
 name="Grafana"
-command="/usr/bin/grafana-server"
-command_args="${GRAFANA_OPTS}"
+command="/usr/bin/grafana"
+command_args="server ${GRAFANA_OPTS}"
 command_user="${GRAFANA_USER}"
 command_background=true
 pidfile="/run/${SVCNAME}.pid"
