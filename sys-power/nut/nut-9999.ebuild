@@ -168,14 +168,14 @@ src_install() {
 		mv "${i}" "${i/.sample/}" || die
 	done
 
-	local DOCS=( AUTHORS docs/*.txt MAINTAINERS NEWS README TODO UPGRADING )
+	local DOCS=( AUTHORS docs/*.txt MAINTAINERS NEWS README UPGRADING )
 	einstalldocs
 
 	newdoc lib/README README.lib
 	newdoc "${FILESDIR}"/lighttpd_nut.conf-2.2.0 lighttpd_nut.conf
 
-	#docinto cables
-	#dodoc docs/cables/*
+	docinto cables
+	dodoc docs/cables/*
 
 	newinitd "${FILESDIR}"/nut-2.6.5-init.d-upsd upsd
 	newinitd "${FILESDIR}"/nut-2.2.2-init.d-upsdrv upsdrv
