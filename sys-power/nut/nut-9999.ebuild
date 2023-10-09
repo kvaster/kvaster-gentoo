@@ -168,10 +168,10 @@ src_install() {
 		mv "${i}" "${i/.sample/}" || die
 	done
 
-	local DOCS=( AUTHORS docs/*.txt MAINTAINERS NEWS README UPGRADING )
+	local DOCS=( AUTHORS docs/*.txt MAINTAINERS NEWS.adoc README.adoc TODO.adoc UPGRADING.adoc )
 	einstalldocs
 
-	newdoc lib/README README.lib
+	newdoc lib/README.adoc README.lib
 	newdoc "${FILESDIR}"/lighttpd_nut.conf-2.2.0 lighttpd_nut.conf
 
 	docinto cables
