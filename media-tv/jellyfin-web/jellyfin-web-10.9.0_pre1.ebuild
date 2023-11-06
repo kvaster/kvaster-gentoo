@@ -11,7 +11,7 @@ EGIT_COMMIT="b0d7f93ae81c128b63278b176b18994b8aa2823d"
 inherit git-r3
 EGIT_REPO_URI="https://github.com/jellyfin/${PN}"
 EGIT_CHECKOUT_DIR="${WORKDIR}/${P}/src/${EGO_PN}"
-S="${WORKDIR}/${PN}-${PV/_/-}/src"
+S="${WORKDIR}/${PN}-${PV}/src"
 
 LICENSE="GPL-2+"
 SLOT="0"

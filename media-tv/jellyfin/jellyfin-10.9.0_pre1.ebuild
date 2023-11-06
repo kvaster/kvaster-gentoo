@@ -13,7 +13,7 @@ EGIT_COMMIT="3c2b1b5e9732d5d2f431ed830c700a486f2c6ac2"
 inherit git-r3
 EGIT_REPO_URI="https://github.com/${PN}/${PN}"
 EGIT_CHECKOUT_DIR="${WORKDIR}/${P}/src/${EGO_PN}"
-S="${WORKDIR}/${PN}-${PV/_/-}/src"
+S="${WORKDIR}/${PN}-${PV}/src"
 
 LICENSE="GPL-2+"
 SLOT="0"
