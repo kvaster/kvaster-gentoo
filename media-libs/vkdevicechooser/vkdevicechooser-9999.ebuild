@@ -18,3 +18,7 @@ IUSE=""
 DEPEND="
 	dev-util/vulkan-loader-headers
 "
+
+PATCHES=(
+	"${FILESDIR}"/api-version-1.3.patch
+)
