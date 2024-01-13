@@ -23,7 +23,7 @@ SLOT="0"
 IUSE="+acct pam sqlite pie"
 
 PATCHES=(
-	"${FILESDIR}"/retarget-prs-onmerge-1.20.2.patch
+	"${FILESDIR}"/retarget-prs-onmerge-1.21.0.patch
 )
 
 DEPEND="
