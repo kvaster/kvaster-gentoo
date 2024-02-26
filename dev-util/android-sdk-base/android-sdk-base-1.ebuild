@@ -21,6 +21,9 @@ S="${WORKDIR}"
 
 ANDROID_SDK_DIR="/opt/android-sdk"
 
+#EF="${T}/80${PN}"
+EF="${T}/49${PN}"
+
 src_install() {
 	keepdir "${ANDROID_SDK_DIR}"
 	fowners -R root:android "${ANDROID_SDK_DIR}"
@@ -31,11 +34,11 @@ src_install() {
 	PLATFORM_TOOLS="${EPREFIX}${ANDROID_SDK_DIR}/platform-tools"
 	CMDLINE_TOOLS="${EPREFIX}${ANDROID_SDK_DIR}/cmdline-tools/latest/bin"
 
-	echo "PATH=\"${TOOLS}:${TOOLS_BIN}:${PLATFORM_TOOLS}:${CMDLINE_TOOLS}\"" > "${T}/80${PN}" || die
-	echo "ANDROID_HOME=\"${EPREFIX}${ANDROID_SDK_DIR}\"" >> "${T}/80${PN}" || die
-	doenvd "${T}/80${PN}"
+	echo "PATH=\"${TOOLS}:${TOOLS_BIN}:${PLATFORM_TOOLS}:${CMDLINE_TOOLS}\"" > "${EF}" || die
+	echo "ANDROID_HOME=\"${EPREFIX}${ANDROID_SDK_DIR}\"" >> "${EF}" || die
+	doenvd "${EF}"
 
-	insinto "/etc/revdep-rebuild" && doins "${T}/80${PN}"
+	insinto "/etc/revdep-rebuild" && doins "${EF}"
 	udev_dorules "${FILESDIR}"/80-android.rules || die
 }
 
