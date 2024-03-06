@@ -5,6 +5,8 @@
 
 EAPI=8
 
+inherit wrapper
+
 JMX_PRO_JA_VER="0.20.0"
 #ZSTD_VER="0.0.2"
 
@@ -16,7 +18,7 @@ HOMEPAGE="http://cassandra.apache.org/"
 SRC_URI="https://archive.apache.org/dist/cassandra/${VER_NS}/apache-cassandra-${VER}-bin.tar.gz
 	https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/${JMX_PRO_JA_VER}/jmx_prometheus_javaagent-${JMX_PRO_JA_VER}.jar"
 LICENSE="Apache-2.0"
-SLOT="6"
+SLOT="0"
 KEYWORDS="~amd64 ~x86"
 CDEPEND="acct-group/cassandra
 	acct-user/cassandra"
@@ -42,14 +44,20 @@ debug-cql
 sstableutil
 sstableloader
 sstablescrub
-sstableupgrade"
+sstableupgrade
+sstableverify"
 
 TOOLS2="sstabledump
+sstableexpiredblockers
+sstablelevelreset
+sstablemetadata
+sstableofflinerelevel
+sstablerepairedset
 sstablesplit
 "
 
 src_compile() {
-	sed -i "s/python/python2/" "${S}/bin/cqlsh"
+	sed -i '/cassandra_storagedir=/c\cassandra_storagedir="${CASSANDRA_STORAGE:-$CASSANDRA_HOME\/data}"' "${S}/bin/cassandra.in.sh"
 	return
 }
 
@@ -67,6 +75,7 @@ src_install() {
 	dodir ${CASSANDRA_HOME}
 	dosym /etc/cassandra ${CASSANDRA_HOME}/conf
 	dosym /var/log/cassandra ${CASSANDRA_HOME}/logs
+	dosym /var/lib/cassandra ${CASSANDRA_HOME}/data
 
 	insinto ${CASSANDRA_HOME}
 	doins -r .
