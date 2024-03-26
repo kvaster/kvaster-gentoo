@@ -16,7 +16,7 @@ export CASSANDRA_LOG="${CASSANDRA_LOG_DIR}/output.log"
 export JVM_OPTS="${JVM_OPTS} -XX:+IgnoreUnrecognizedVMOptions -Djna.tmpdir=/tmp/cassandra-jna"
 [[ "${JVM_OPTS_SECURITY}" != "no" ]] && export JVM_OPTS="${JVM_OPTS} -Djava.security.manager=allow"
 
-modules=( java.io sun.nio.ch java.util java.util.concurrent java.util.concurrent.atomic java.nio )
+modules=( java.io sun.nio.ch java.util java.util.concurrent java.util.concurrent.atomic java.nio java.lang java.math )
 for module in "${modules[@]}"
 do
 	export JVM_OPTS="${JVM_OPTS} --add-opens java.base/${module}=ALL-UNNAMED"
