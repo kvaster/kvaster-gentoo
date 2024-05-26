@@ -23,6 +23,14 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="Apache-2.0 SSPL-1"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 -riscv"
+IUSE="debug kerberos mongosh ssl lto +tools ${CPU_FLAGS}"
+
+# https://github.com/mongodb/mongo/wiki/Test-The-Mongodb-Server
+# resmoke needs python packages not yet present in Gentoo
+RESTRICT="test"
+
+RDEPEND="acct-group/mongodb
+	acct-user/mongodb
 	>=app-arch/snappy-1.1.7:=
 	>=dev-cpp/yaml-cpp-0.6.2:=
 	dev-libs/boost:=[nls]
