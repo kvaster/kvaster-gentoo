@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 SCONS_MIN_VERSION="3.3.1"
 CHECKREQS_DISK_BUILD="2400M"
@@ -12,31 +12,24 @@ CHECKREQS_MEMORY="1024M"
 
 inherit check-reqs flag-o-matic multiprocessing pax-utils python-any-r1 scons-utils systemd toolchain-funcs
 
-MY_P=${PN}-src-r${PV/_rc/-rc}
+MY_PV=r${PV/_rc/-rc}
+MY_P=mongo-${MY_PV}
 
 DESCRIPTION="A high-performance, open source, schema-free document-oriented database"
 HOMEPAGE="https://www.mongodb.com"
-SRC_URI="https://fastdl.mongodb.org/src/${MY_P}.tar.gz"
+SRC_URI="https://github.com/mongodb/mongo/archive/refs/tags/${MY_PV}.tar.gz -> ${P}.gh.tar.gz"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="Apache-2.0 SSPL-1"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 -riscv"
-IUSE="debug kerberos lto mongosh ssl +tools ${CPU_FLAGS}"
-
-# https://github.com/mongodb/mongo/wiki/Test-The-Mongodb-Server
-# resmoke needs python packages not yet present in Gentoo
-RESTRICT="test"
-
-RDEPEND="acct-group/mongodb
-	acct-user/mongodb
-	>=app-arch/snappy-1.1.3:=
+KEYWORDS="~amd64 ~arm64 -riscv"
+	>=app-arch/snappy-1.1.7:=
 	>=dev-cpp/yaml-cpp-0.6.2:=
 	dev-libs/boost:=[nls]
 	>=dev-libs/libpcre-8.42[cxx]
 	app-arch/zstd:=
 	dev-libs/snowball-stemmer:=
-	net-libs/libpcap
-	>=sys-libs/zlib-1.2.11:=
+	>=sys-libs/zlib-1.2.12:=
 	kerberos? ( dev-libs/cyrus-sasl[kerberos] )
 	ssl? (
 		>=dev-libs/openssl-1.0.1g:0=
@@ -45,7 +38,7 @@ DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
-	debug? ( dev-util/valgrind )"
+	debug? ( dev-debug/valgrind )"
 BDEPEND="
 	$(python_gen_any_dep '
 		>=dev-build/scons-3.1.1[${PYTHON_USEDEP}]
@@ -70,19 +63,15 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.5-no-force-lld.patch"
 	"${FILESDIR}/${PN}-4.4.10-boost-1.81.patch"
 	"${FILESDIR}/${PN}-5.0.5-boost-1.81-extra.patch"
-	"${FILESDIR}/${PN}-4.4.8-gcc-13.patch"
-	"${FILESDIR}/${PN}-5.0.2-arm64.patch"
-	"${FILESDIR}/gcc-constructive-size-alignment.patch"
-	# "${FILESDIR}/gcc-fix-template-set-map.patch"
+	"${FILESDIR}/${PN}-5.0.16-arm64-assert.patch"
+	"${FILESDIR}/${PN}-4.4.29-no-enterprise.patch"
 )
 
-S="${WORKDIR}/${MY_P}"
-
 python_check_deps() {
-	python_has_version ">=dev-build/scons-3.1.1[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/cheetah3[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/psutil[${PYTHON_USEDEP}]" &&
-	python_has_version "dev-python/pyyaml[${PYTHON_USEDEP}]"
+	python_has_version -b ">=dev-build/scons-3.1.1[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/cheetah3[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/psutil[${PYTHON_USEDEP}]" &&
+	python_has_version -b "dev-python/pyyaml[${PYTHON_USEDEP}]"
 }
 
 pkg_pretend() {
@@ -111,10 +100,17 @@ src_configure() {
 	# https://github.com/mongodb/mongo/wiki/Build-Mongodb-From-Source
 	# --use-system-icu fails tests
 	# --use-system-tcmalloc is strongly NOT recommended:
+	# for MONGO_GIT_HASH use GitOrigin-RevId from the commit of the tag
 	scons_opts=(
 		AR="$(tc-getAR)"
 		CC="$(tc-getCC)"
 		CXX="$(tc-getCXX)"
+		CCFLAGS="${CXXFLAGS}"
+
+		VERBOSE=1
+		VARIANT_DIR=gentoo
+		MONGO_VERSION="${PV}"
+		MONGO_GIT_HASH="0b4f1ea980b5380a66425a90b414106a191365f4"
 
 		--disable-warnings-as-errors
 		--jobs="$(makeopts_jobs)"
@@ -179,11 +175,8 @@ src_install() {
 	# see bug #526114
 	pax-mark emr "${ED}"/usr/bin/{mongo,mongod,mongos}
 
-	local x
-	for x in /var/{lib,log}/${PN}; do
-		diropts -m0750 -o mongodb -g mongodb
-		keepdir "${x}"
-	done
+	diropts -m0750 -o mongodb -g mongodb
+	keepdir /var/log/${PN}
 }
 
 pkg_postinst() {
