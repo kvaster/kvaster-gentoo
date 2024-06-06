@@ -13,7 +13,7 @@ MY_PV="$(ver_cut 1-3)-$(ver_cut 4)"
 MY_P="${MY_PN}-${MY_PV}"
 MY_MV="3"
 
-SRC_URI="http://download.sonatype.com/${MY_PN}/${MY_MV}/${MY_P}-unix.tar.gz"
+SRC_URI="http://download.sonatype.com/${MY_PN}/${MY_MV}/${MY_P}-java11-unix.tar.gz"
 RESTRICT="mirror"
 KEYWORDS="~x86 ~amd64"
 SLOT="${MY_MV}"
