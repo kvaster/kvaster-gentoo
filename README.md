@@ -17,3 +17,6 @@ Remove this when building with binutils 2.24 will be fixed in upstream
 Remove when gles2 flag will be fixed
 [ ] media-plugins/gst-plugins-vaapi
 [ ] media-libs/gst-plugins-base
+
+Remove when updated in escpr2 repository
+[ ] epson-inkjet-printer-escpr2
