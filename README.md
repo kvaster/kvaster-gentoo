@@ -16,3 +16,6 @@ Remove this when building with binutils 2.24 will be fixed in upstream
 
 Remove when updated in escpr2 repository
 [ ] epson-inkjet-printer-escpr2
+
+Remove when fixed in main repository
+[ ] net-misc/chrome-remot-desktop
