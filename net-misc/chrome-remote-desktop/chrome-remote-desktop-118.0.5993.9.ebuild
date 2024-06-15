@@ -106,7 +106,10 @@ src_install() {
 
 	insinto /etc
 	doins -r etc/opt
-	dosym ../opt/chrome/native-messaging-hosts /etc/chromium/native-messaging-hosts #581754
+
+	#dosym ../opt/chrome/native-messaging-hosts /etc/chromium/native-messaging-hosts #581754
+	insinto /etc/chromium/native-messaging-hosts
+	doins etc/opt/chrome/native-messaging-hosts/*
 
 	insinto /opt
 	doins -r opt/google
