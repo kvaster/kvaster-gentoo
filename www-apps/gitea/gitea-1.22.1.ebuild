@@ -22,10 +22,6 @@ LICENSE="Apache-2.0 BSD BSD-2 ISC MIT MPL-2.0"
 SLOT="0"
 IUSE="+acct pam sqlite pie"
 
-PATCHES=(
-	"${FILESDIR}"/retarget-prs-onmerge-1.21.0.patch
-)
-
 DEPEND="
 	acct? (
 		acct-group/git
