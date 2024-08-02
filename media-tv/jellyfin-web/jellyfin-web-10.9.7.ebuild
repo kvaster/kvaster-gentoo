@@ -3,8 +3,6 @@
 
 EAPI=8
 
-inherit systemd
-
 DESCRIPTION="The Free Software Media System web panel"
 HOMEPAGE="https://github.com/jellyfin/jellyfin-web"
 
@@ -29,7 +27,7 @@ RDEPEND="${DEPEND}"
 BDEPEND="net-libs/nodejs[npm]"
 
 src_compile() {
-	npm install || die
+	npm ci --no-audit || die
 	npm run build:production || die
 }
 
