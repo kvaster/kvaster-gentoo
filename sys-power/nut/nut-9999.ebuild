@@ -136,6 +136,7 @@ src_configure() {
 		--with-serial \
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
 		--without-powerman \
+		--without-docs \
 		$(use_with cgi) \
 		$(use_with ipmi) \
 		$(use_with ipmi freeipmi) \
