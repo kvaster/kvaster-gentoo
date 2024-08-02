@@ -1,0 +1,14 @@
+diff --git a/SConstruct b/SConstruct
+index 2b2382e5..df4e70c6 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -4622,9 +4622,6 @@ def doConfigure(myenv):
+             else:
+                 # According to intel benchmarks -fno-plt increases perf
+                 # See PM-2215
+-                if link_model != "object":
+-                    myenv.ConfError(
+-                        "lto compilation currently only works with the --link-model=object")
+                 if not myenv.AddToCCFLAGSIfSupported('-fno-plt') or \
+                     not myenv.AddToLINKFLAGSIfSupported('-fno-plt'):
+                     myenv.ConfError("-fno-plt is not supported by the compiler")

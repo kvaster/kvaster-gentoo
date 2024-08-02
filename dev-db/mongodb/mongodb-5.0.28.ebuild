@@ -1,9 +1,11 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# ebuild origin: https://git.znc.in/Dessa/gentoo.git
+
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 SCONS_MIN_VERSION="3.3.1"
 CHECKREQS_DISK_BUILD="2400M"
@@ -32,11 +34,12 @@ RESTRICT="test"
 RDEPEND="acct-group/mongodb
 	acct-user/mongodb
 	>=app-arch/snappy-1.1.7:=
+	app-arch/zstd:=
 	>=dev-cpp/yaml-cpp-0.6.2:=
 	dev-libs/boost:=[nls]
 	>=dev-libs/libpcre-8.42[cxx]
-	app-arch/zstd:=
 	dev-libs/snowball-stemmer:=
+	net-misc/curl
 	>=sys-libs/zlib-1.2.12:=
 	kerberos? ( dev-libs/cyrus-sasl[kerberos] )
 	ssl? (
@@ -73,7 +76,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.5-boost-1.81-extra.patch"
 	"${FILESDIR}/${PN}-5.0.16-arm64-assert.patch"
 	"${FILESDIR}/${PN}-4.4.29-no-enterprise.patch"
-	"${FILESDIR}/${PN}-5.0.26-boost-1.85-old.patch"
+	"${FILESDIR}/${PN}-5.0.26-boost-1.85.patch"
+	"${FILESDIR}/${PN}-5.0.26-boost-1.85-extra.patch"
+	"${FILESDIR}/${PN}-5.0.28-clang.patch"
 )
 
 python_check_deps() {
@@ -119,9 +124,10 @@ src_configure() {
 		VERBOSE=1
 		VARIANT_DIR=gentoo
 		MONGO_VERSION="${PV}"
-		MONGO_GIT_HASH="0b4f1ea980b5380a66425a90b414106a191365f4"
+		MONGO_GIT_HASH="a8f8b8e1e271f236e761d0138e2418d0a114c941"
 
 		--disable-warnings-as-errors
+		--force-jobs # Reapply #906897, fix #935274
 		--jobs="$(makeopts_jobs)"
 		--use-system-boost
 		--use-system-pcre
@@ -131,9 +137,7 @@ src_configure() {
 		--use-system-zlib
 		--use-system-zstd
 
-		CCFLAGS="${CFLAGS}"
 		--experimental-optimization=+O3
-		--linker=gold
 	)
 
 	use arm64 && scons_opts+=( --use-hardware-crc32=off ) # Bug 701300
@@ -147,6 +151,13 @@ src_configure() {
 	# Gentoo's toolchain applies these anyway
 	scons_opts+=( --runtime-hardening=off )
 
+	# gold is an option here but we don't really do that anymore
+	if tc-ld-is-lld; then
+		 scons_opts+=( --linker=lld )
+	else
+		 scons_opts+=( --linker=bfd )
+	fi
+
 	# respect mongoDB upstream's basic recommendations
 	# see bug #536688 and #526114
 	if ! use debug; then
@@ -158,7 +169,7 @@ src_configure() {
 }
 
 src_compile() {
-	PREFIX="${EPREFIX}/usr" ./buildscripts/scons.py "${scons_opts[@]}" install-core || die
+	PREFIX="${EPREFIX}/usr" ./buildscripts/scons.py "${scons_opts[@]}" install-devcore || die
 }
 
 src_install() {

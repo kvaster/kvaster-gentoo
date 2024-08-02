@@ -1,0 +1,2 @@
+d /var/log/mongodb 0750 mongodb mongodb -
+d /run/mongodb 0750 mongodb mongodb -
