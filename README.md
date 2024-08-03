@@ -5,17 +5,11 @@ This repository is my own gentoo overlay - collection of usefull (at least for m
 To be removed when ebuild in main repo will be available with cient building option:
 [ ] www-apps/gitea
 
-To be removed when mongodb will be compiled with native optimizations
+To be removed when mongodb will be compiled with native optimizations and will be available upstream
 [ ] dev-db/mongodb
 
-Need to check with upstream:
+Upstream have only binary outdated version:
 [ ] media-tv/jellyfin
 
-Remove this when building with binutils 2.24 will be fixed in upstream
-[ ] sys-apps/kexec-tools
-
-Remove when updated in escpr2 repository
-[ ] epson-inkjet-printer-escpr2
-
 Remove when fixed in main repository
-[ ] net-misc/chrome-remot-desktop
+[ ] net-misc/chrome-remote-desktop
