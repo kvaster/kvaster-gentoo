@@ -75,6 +75,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-7.0.1-sconstruct.patch"
 	"${FILESDIR}/${PN}-7.0.12-sconstruct-extrapatch.patch"
 	"${FILESDIR}/${PN}-7.0.12-boost-1.85.patch"
+	"${FILESDIR}/${PN}-7.0.12-boost-1.85-extra.patch"
 	"${FILESDIR}/${PN}-7.0.12-lto-without-gold-linker.patch"
 	"${FILESDIR}/${PN}-7.0.12-lto-without-object-model.patch"
 )
