@@ -25,6 +25,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="Apache-2.0 SSPL-1"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 -riscv"
+CPU_FLAGS="cpu_flags_x86_avx"
 IUSE="debug kerberos mongosh ssl lto +tools ${CPU_FLAGS}"
 
 # https://github.com/mongodb/mongo/wiki/Test-The-Mongodb-Server
@@ -94,6 +95,14 @@ python_check_deps() {
 }
 
 pkg_pretend() {
+	# Bug 809692 + 890294
+	if use amd64 && ! use cpu_flags_x86_avx; then
+		ewarn "MongoDB 5.0 requires use of the AVX instruction set."
+		ewarn "This ebuild will use --experimental-optimization=-sandybridge which"
+		ewarn "will result in an experimental build of MongoDB as per upstream."
+		ewarn "https://docs.mongodb.com/v5.0/administration/production-notes/"
+	fi
+
 	if [[ -n ${REPLACING_VERSIONS} ]]; then
 		if ver_test "$REPLACING_VERSIONS" -lt 5.0; then
 			ewarn "To upgrade from a version earlier than the 5.0-series, you must"
@@ -147,6 +156,7 @@ src_configure() {
 	)
 
 	use arm64 && scons_opts+=( --use-hardware-crc32=off ) # Bug 701300
+	use amd64 && scons_opts+=( --experimental-optimization=-sandybridge ) # Bug 890294
 	use debug && scons_opts+=( --dbg=on )
 	use kerberos && scons_opts+=( --use-sasl-client )
 	use lto && scons_opts+=( --lto=on )
