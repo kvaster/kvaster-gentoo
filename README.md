@@ -13,3 +13,6 @@ Upstream have only binary outdated version:
 
 Remove when fixed in main repository
 [ ] net-misc/chrome-remote-desktop
+
+Remove if no need for EAP, only stable versions available upstream
+[ ] net-wireless/unifi
