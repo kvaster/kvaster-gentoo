@@ -23,7 +23,7 @@ INSTALL_DIR="/opt/nexus-oss"
 
 DEPEND="acct-user/nexus"
 RDEPEND="
->=virtual/jdk-1.8
+>=virtual/jdk-17
 ${DEPEND}"
 
 src_unpack() {
