@@ -79,6 +79,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-7.0.12-boost-1.85-extra.patch"
 	"${FILESDIR}/${PN}-7.0.12-lto-without-gold-linker.patch"
 	"${FILESDIR}/${PN}-7.0.12-lto-without-object-model.patch"
+	"${FILESDIR}/${PN}-7.0.14-avx.patch"
 )
 
 python_check_deps() {
@@ -122,6 +123,13 @@ src_prepare() {
 }
 
 src_configure() {
+	my_cflags="${CFLAGS}"
+	my_ccflags="${CXXFLAGS}"
+	if ! use cpu_flags_x86_avx; then
+		my_cflags="${my_cflags} -mno-avx -DDISABLE_AVX=1"
+		my_ccflags="${my_ccflags} -mno-avx -DDISABLE_AVX=1"
+	fi
+
 	# https://github.com/mongodb/mongo/wiki/Build-Mongodb-From-Source
 	# --use-system-icu fails tests
 	# --use-system-tcmalloc is strongly NOT recommended:
@@ -129,7 +137,8 @@ src_configure() {
 		AR="$(tc-getAR)"
 		CC="$(tc-getCC)"
 		CXX="$(tc-getCXX)"
-		CCFLAGS="${CXXFLAGS}"
+		CFLAGS="${my_cflags}"
+		CCFLAGS="${my_ccflags}"
 
 		VERBOSE=1
 		VARIANT_DIR=gentoo
@@ -169,12 +178,16 @@ src_configure() {
 		 scons_opts+=( --linker=bfd )
 	fi
 
+	if ! use cpu_flags_x86_avx; then
+		scons_opts+=( DISABLE_AVX=yes )
+	fi
+
 	# respect mongoDB upstream's basic recommendations
 	# see bug #536688 and #526114
-	if ! use debug; then
-		filter-flags '-m*'
-		filter-flags '-O?'
-	fi
+	#if ! use debug; then
+	#	filter-flags '-m*'
+	#	filter-flags '-O?'
+	#fi
 
 	default
 }
