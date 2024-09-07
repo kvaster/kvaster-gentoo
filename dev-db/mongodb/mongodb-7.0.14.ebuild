@@ -125,7 +125,7 @@ src_prepare() {
 src_configure() {
 	my_cflags="${CFLAGS}"
 	my_ccflags="${CXXFLAGS}"
-	if ! use cpu_flags_x86_avx; then
+	if use amd64 && ! use cpu_flags_x86_avx; then
 		my_cflags="${my_cflags} -mno-avx -DDISABLE_AVX=1"
 		my_ccflags="${my_ccflags} -mno-avx -DDISABLE_AVX=1"
 	fi
@@ -178,7 +178,7 @@ src_configure() {
 		 scons_opts+=( --linker=bfd )
 	fi
 
-	if ! use cpu_flags_x86_avx; then
+	if use amd64 && ! use cpu_flags_x86_avx; then
 		scons_opts+=( DISABLE_AVX=yes )
 	fi
 
