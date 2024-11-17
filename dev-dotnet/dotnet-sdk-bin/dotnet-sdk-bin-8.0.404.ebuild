@@ -28,7 +28,7 @@ S="${WORKDIR}"
 LICENSE="MIT"
 SLOT="${SDK_SLOT}/${RUNTIME_SLOT}"
 # See bug https://bugs.gentoo.org/932377
-# KEYWORDS=""
+KEYWORDS="~amd64 ~arm64 ~arm"
 
 # STRIP="llvm-strip" corrupts some executables when using the patchelf hack,
 # bug https://bugs.gentoo.org/923430
