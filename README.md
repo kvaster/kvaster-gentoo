@@ -17,5 +17,3 @@ Remove when fixed in main repository
 Remove if no need for EAP, only stable versions available upstream
 [ ] net-wireless/unifi
 
-Remove when updated in main repository
-[ ] dev-dotnet/dotnet-sdk-binary
