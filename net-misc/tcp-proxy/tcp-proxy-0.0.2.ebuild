@@ -109,7 +109,7 @@ src_compile() {
 }
 
 src_install() {
-	fcaps cap_net_admin+ep usr/bin/${PN}
+	setcap cap_net_admin+ep "${D}/usr/bin/${PN}"
 	newbin tcp-proxy tcp-proxy
 
 	newinitd "${FILESDIR}"/tcp-proxy.initd tcp-proxy
