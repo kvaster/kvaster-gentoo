@@ -22,6 +22,7 @@ EGO_SUM=(
 	"github.com/aws/aws-sdk-go v1.20.6/go.mod"
 	"github.com/aybabtme/rgbterm v0.0.0-20170906152045-cc83f3b3ce59/go.mod"
 	"github.com/davecgh/go-spew v1.1.0/go.mod"
+	"github.com/davecgh/go-spew v1.1.1"
 	"github.com/davecgh/go-spew v1.1.1/go.mod"
 	"github.com/fatih/color v1.7.0/go.mod"
 	"github.com/fsnotify/fsnotify v1.4.7/go.mod"
@@ -49,6 +50,7 @@ EGO_SUM=(
 	"github.com/onsi/gomega v1.5.0/go.mod"
 	"github.com/pkg/errors v0.8.1"
 	"github.com/pkg/errors v0.8.1/go.mod"
+	"github.com/pmezard/go-difflib v1.0.0"
 	"github.com/pmezard/go-difflib v1.0.0/go.mod"
 	"github.com/rogpeppe/fastuuid v1.1.0/go.mod"
 	"github.com/sergi/go-diff v1.0.0/go.mod"
@@ -57,8 +59,10 @@ EGO_SUM=(
 	"github.com/smartystreets/gunit v1.0.0/go.mod"
 	"github.com/stretchr/objx v0.1.0/go.mod"
 	"github.com/stretchr/testify v1.3.0/go.mod"
+	"github.com/stretchr/testify v1.6.1"
 	"github.com/stretchr/testify v1.6.1/go.mod"
 	"github.com/tj/assert v0.0.0-20171129193455-018094318fb0/go.mod"
+	"github.com/tj/assert v0.0.3"
 	"github.com/tj/assert v0.0.3/go.mod"
 	"github.com/tj/go-buffer v1.1.0/go.mod"
 	"github.com/tj/go-elastic v0.0.0-20171221160941-36157cbbebc2/go.mod"
@@ -89,6 +93,7 @@ EGO_SUM=(
 	"gopkg.in/yaml.v2 v2.2.1/go.mod"
 	"gopkg.in/yaml.v2 v2.2.2/go.mod"
 	"gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod"
+	"gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c"
 	"gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c/go.mod"
 )
 
@@ -104,6 +109,7 @@ src_compile() {
 }
 
 src_install() {
+	fcaps cap_net_admin+ep usr/bin/${PN}
 	newbin tcp-proxy tcp-proxy
 
 	newinitd "${FILESDIR}"/tcp-proxy.initd tcp-proxy
