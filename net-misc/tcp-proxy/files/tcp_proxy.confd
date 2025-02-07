@@ -1,0 +1,2 @@
+# arguments for tcp proxy
+command_args="-log.syslog tcp_proxy"
