@@ -109,8 +109,8 @@ src_compile() {
 }
 
 src_install() {
-	setcap cap_net_admin+ep "${D}/usr/bin/${PN}"
 	newbin tcp-proxy tcp-proxy
+	setcap cap_net_admin+ep "${ED}/usr/bin/tcp-proxy" || die "Failed to setup net admin capabilities"
 
 	newinitd "${FILESDIR}"/tcp-proxy.initd tcp-proxy
 	newconfd "${FILESDIR}"/tcp-proxy.confd tcp-proxy
