@@ -29,3 +29,12 @@ BDEPEND="
 	dev-qt/linguist-tools:5
 	virtual/pkgconfig
 "
+
+src_configure() {
+	local mycmakeargs=(
+		-DPHONON_BUILD_QT5=OFF
+		-DPHONON_BUILD_QT6=ON
+	)
+
+	cmake_src_configure
+}
