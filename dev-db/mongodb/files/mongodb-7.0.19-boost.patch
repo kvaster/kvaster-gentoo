@@ -1,0 +1,15 @@
+diff --git a/src/mongo/db/storage/backup_block.cpp b/src/mongo/db/storage/backup_block.cpp
+index 9b8dc29f..54308745 100644
+--- a/src/mongo/db/storage/backup_block.cpp
++++ b/src/mongo/db/storage/backup_block.cpp
+@@ -59,7 +59,9 @@ std::string extractIdentFromPath(const boost::filesystem::path& dbpath,
+ 
+     // Remove the file extension and convert to generic form (i.e. replace "\" with "/"
+     // on windows, no-op on unix).
+-    return boost::filesystem::change_extension(identWithExtension, "").generic_string();
++    boost::filesystem::path newIdentWithExtension = identWithExtension;
++    newIdentWithExtension.replace_extension("");
++    return newIdentWithExtension.generic_string();
+ }
+ 
+ }  // namespace details

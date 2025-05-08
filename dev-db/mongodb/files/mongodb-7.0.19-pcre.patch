@@ -1,0 +1,12 @@
+diff -u -r a/src/mongo/util/pcre.h b/src/mongo/util/pcre.h
+--- a/src/mongo/util/pcre.h       2025-03-02 16:46:18.443355487 -0500
++++ b/src/mongo/util/pcre.h       2025-03-02 16:46:59.651708274 -0500
+@@ -155,7 +155,7 @@
+     X(ERROR_ALPHA_ASSERTION_UNKNOWN)             \
+     X(ERROR_SCRIPT_RUN_NOT_AVAILABLE)            \
+     X(ERROR_TOO_MANY_CAPTURES)                   \
+-    X(ERROR_CONDITION_ATOMIC_ASSERTION_EXPECTED) \
++    /*X(ERROR_CONDITION_ATOMIC_ASSERTION_EXPECTED)*/ \
+     X(ERROR_BACKSLASH_K_IN_LOOKAROUND)           \
+     X(ERROR_NOMATCH)                             \
+     X(ERROR_PARTIAL)                             \
