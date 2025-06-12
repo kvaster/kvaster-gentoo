@@ -14,5 +14,3 @@ Upstream have only binary outdated version:
 Remove when fixed in main repository
 [ ] net-misc/chrome-remote-desktop
 
-Remove when webkit-gtk upstream will support ruby 3.4
-[ ] ney-libs/webkit-gtk
