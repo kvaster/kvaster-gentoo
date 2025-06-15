@@ -19,6 +19,7 @@ RDEPEND="
 	dev-qt/qt5compat:6
 	dev-qt/qtdeclarative:6
 	dev-qt/qtbase:6
+	dev-libs/kdsingleapplication
 	kde-frameworks/breeze-icons:6
 	kde-frameworks/kconfig:6
 	kde-frameworks/kcoreaddons:6
