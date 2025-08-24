@@ -29,7 +29,7 @@ RDEPEND="${DEPEND}
 		=media-tv/jellyfin-web-${PV}
 		acct-group/jellyfin
 		acct-user/jellyfin
-		media-video/ffmpeg[fontconfig,gmp,libass,libdrm,truetype,fribidi,vorbis,vdpau,vaapi,x264,x265,webp,bluray,zvbi,mp3,opus,theora]
+		media-video/ffmpeg[fontconfig,gmp,libass,drm,truetype,fribidi,vorbis,vdpau,vaapi,x264,x265,webp,bluray,zvbi,opus,theora]
 		dev-db/sqlite:3
 		media-libs/fontconfig
 		media-libs/freetype
