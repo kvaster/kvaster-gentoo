@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<!DOCTYPE pkgmetadata
+  SYSTEM 'http://www.gentoo.org/dtd/metadata.dtd'>
+<pkgmetadata>
+  <upstream>
+    <remote-id type="github">obsidianmd/obsidian-releases</remote-id>
+  </upstream>
+  <use>
+    <flag name="appindicator">Add support for Appindicator</flag>
+    <flag name="wayland">Add desktop file for Wayland</flag>
+    <flag name="X">Add desktop file for X</flag>
+  </use>
+</pkgmetadata>
