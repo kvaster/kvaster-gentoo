@@ -26,10 +26,6 @@ DEPEND="!www-apps/grafana-bin
 
 QA_PRESTRIPPED="usr/bin/grafana-*"
 
-PATCHES=(
-	"${FILESDIR}/go-1.23.patch"
-)
-
 src_prepare() {
 	sed -i "s:;reporting_enabled = .*:reporting_enabled = false:" \
 		conf/sample.ini || die "prepare failed"
