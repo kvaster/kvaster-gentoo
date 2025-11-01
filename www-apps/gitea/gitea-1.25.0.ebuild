@@ -100,6 +100,10 @@ src_compile() {
 		makeenv+=( EXTRA_GOFLAGS="-buildmode=pie" )
 	fi
 
+	echo "#!/bin/sh" > pnpm
+	echo "npm exec --yes pnpm -- \$*" >> pnpm
+	chmod +x pnpm
+	export PATH=$PATH:${S}
 	env "${makeenv[@]}" emake build
 }
 
