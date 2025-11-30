@@ -41,6 +41,8 @@ src_install() {
 	doins "${MY_P}"/etc/nexus-default.properties
 	rm "${MY_P}"/etc/nexus-default.properties
 
+	rm -rf "${MY_P}"/jdk
+
 	insinto ${INSTALL_DIR}
 	doins -r "${MY_P}"/*
 	dosym /etc/nexus/nexus.vmoptions ${INSTALL_DIR}/bin/nexus.vmoptions
