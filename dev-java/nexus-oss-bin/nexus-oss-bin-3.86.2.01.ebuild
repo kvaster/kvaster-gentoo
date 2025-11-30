@@ -36,8 +36,6 @@ src_install() {
 	fowners -R nexus:nexus /var/lib/nexus
 
 	insinto /etc/nexus
-	doins "${MY_P}"/bin/nexus.rc
-	rm "${MY_P}"/bin/nexus.rc
 	doins "${MY_P}"/bin/nexus.vmoptions
 	rm "${MY_P}"/bin/nexus.vmoptions
 	doins "${MY_P}"/etc/nexus-default.properties
@@ -46,7 +44,6 @@ src_install() {
 	insinto ${INSTALL_DIR}
 	doins -r "${MY_P}"/*
 	doins -r "${MY_P}"/.??*
-	dosym /etc/nexus/nexus.rc ${INSTALL_DIR}/bin/nexus.rc
 	dosym /etc/nexus/nexus.vmoptions ${INSTALL_DIR}/bin/nexus.vmoptions
 	dosym /etc/nexus/nexus-default.properties ${INSTALL_DIR}/etc/nexus-default.properties
 
