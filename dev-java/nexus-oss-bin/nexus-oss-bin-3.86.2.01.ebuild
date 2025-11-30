@@ -43,7 +43,6 @@ src_install() {
 
 	insinto ${INSTALL_DIR}
 	doins -r "${MY_P}"/*
-	doins -r "${MY_P}"/.??*
 	dosym /etc/nexus/nexus.vmoptions ${INSTALL_DIR}/bin/nexus.vmoptions
 	dosym /etc/nexus/nexus-default.properties ${INSTALL_DIR}/etc/nexus-default.properties
 
