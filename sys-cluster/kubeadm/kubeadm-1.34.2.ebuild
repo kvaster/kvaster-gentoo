@@ -14,13 +14,15 @@ LICENSE="Apache-2.0"
 # Dependent licenses
 LICENSE+=" Apache-2.0 BSD BSD-2 ISC MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm64"
+KEYWORDS="~amd64 ~arm64"
 IUSE="hardened selinux"
 RESTRICT="test"
 
 RDEPEND="app-containers/cri-tools
 	selinux? ( sec-policy/selinux-kubernetes )"
-BDEPEND=">=dev-lang/go-1.24.0"
+BDEPEND=">=dev-lang/go-1.24.6"
+
+QA_PRESTRIPPED=usr/bin/kubeadm
 
 src_compile() {
 	CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" FORCE_HOST_GO=yes \
