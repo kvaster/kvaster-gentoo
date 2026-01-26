@@ -27,8 +27,8 @@ RDEPEND="${DEPEND}"
 BDEPEND="net-libs/nodejs[npm]"
 
 src_compile() {
-	npm ci --no-audit || die
-	npm run build:production || die
+	npm ci --no-audit --engine-strict=false || die
+	npm run build:production --engine-strict=false || die
 }
 
 src_install() {
