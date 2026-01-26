@@ -150,8 +150,7 @@ src_configure() {
 		VERBOSE=1
 		VARIANT_DIR=gentoo
 		MONGO_VERSION="${PV}"
-		MONGO_GIT_HASH="cfc346c59d2cc3dbc903507fc642e22e3097f362"
-
+		MONGO_GIT_HASH="b60fc6875b5fb4b63cc0dbbd8dda0d6d6277921a"
 		--disable-warnings-as-errors
 		--force-jobs # Reapply #906897, fix #935274
 		--jobs="$(makeopts_jobs)"
@@ -182,10 +181,6 @@ src_configure() {
 		 scons_opts+=( --linker=lld )
 	else
 		 scons_opts+=( --linker=bfd )
-	fi
-
-	if use amd64 && ! use cpu_flags_x86_avx; then
-		scons_opts+=( DISABLE_AVX=yes )
 	fi
 
 	# respect mongoDB upstream's basic recommendations
