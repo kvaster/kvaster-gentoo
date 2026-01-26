@@ -1,29 +1,24 @@
+wrt PATH:
+"""
+https://jira.mongodb.org/browse/SERVER-94430 Upstream respond:
+
+> we intentionally do not ingest the environment PATH as this makes build
+> reproducibility and hermiticity much harder. Instead, you should set the
+> absolute paths to the tools you want to use on the command line, instead of
+> relying on the PATH.
+
+Gentoo bug https://bugs.gentoo.org/829340
+
+In Gentoo, we have LLVM slotted and we put clang in /usr/lib/llvm/18/bin (or
+whatever), not in /usr/bin, and if upstream strip PATH and construct it
+themselves, they surely won't contain this location.
+
+So we add PATH backup for scons.
+"""
 diff --git a/SConstruct b/SConstruct
 index 2ebeb0e..44ce93a 100644
 --- a/SConstruct
 +++ b/SConstruct
-@@ -23,7 +23,6 @@ from pkg_resources import parse_version
- 
- import SCons
- import SCons.Script
--from mongo_tooling_metrics.lib.top_level_metrics import SConsToolingMetrics
- from site_scons.mongo import build_profiles
- 
- # This must be first, even before EnsureSConsVersion, if
-@@ -1657,13 +1656,6 @@ env.AddMethod(lambda env, name, **kwargs: add_option(name, **kwargs), 'AddOption
- 
- # The placement of this is intentional. Here we setup an atexit method to store tooling metrics.
- # We should only register this function after env, env_vars and the parser have been properly initialized.
--SConsToolingMetrics.register_metrics(
--    utc_starttime=datetime.utcnow(),
--    artifact_dir=env.Dir('$BUILD_DIR').get_abspath(),
--    env_vars=env_vars,
--    env=env,
--    parser=_parser,
--)
- 
- if get_option('build-metrics'):
-     env['BUILD_METRICS_ARTIFACTS_DIR'] = '$BUILD_ROOT/$VARIANT_DIR'
 @@ -3034,7 +3026,6 @@ if env.TargetOSIs('posix'):
      env.Append(
          CCFLAGS=[

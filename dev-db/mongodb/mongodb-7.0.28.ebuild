@@ -1,18 +1,16 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# ebuild origin: https://bugs.gentoo.org/882515
-
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 
 SCONS_MIN_VERSION="3.3.1"
 CHECKREQS_DISK_BUILD="2400M"
 CHECKREQS_DISK_USR="512M"
 CHECKREQS_MEMORY="1024M"
 
-inherit check-reqs flag-o-matic multiprocessing pax-utils python-any-r1 scons-utils systemd tmpfiles toolchain-funcs
+inherit check-reqs eapi9-ver flag-o-matic multiprocessing pax-utils python-any-r1 scons-utils systemd toolchain-funcs
 
 MY_PV=r${PV/_rc/-rc}
 MY_P=mongo-${MY_PV}
@@ -20,6 +18,7 @@ MY_P=mongo-${MY_PV}
 DESCRIPTION="A high-performance, open source, schema-free document-oriented database"
 HOMEPAGE="https://www.mongodb.com"
 SRC_URI="https://github.com/mongodb/mongo/archive/refs/tags/${MY_PV}.tar.gz -> ${P}.gh.tar.gz"
+SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-7.0.18-patches.tar.xz"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="Apache-2.0 SSPL-1"
@@ -41,7 +40,9 @@ RDEPEND="acct-group/mongodb
 	>=dev-libs/libpcre-8.42[cxx]
 	dev-libs/snowball-stemmer:=
 	net-misc/curl
-	>=sys-libs/zlib-1.2.12:=
+	dev-libs/libbson
+	dev-libs/mongo-c-driver:0
+	>=virtual/zlib-1.2.12:=
 	kerberos? ( dev-libs/cyrus-sasl[kerberos] )
 	ssl? (
 		>=dev-libs/openssl-1.0.1g:0=
@@ -50,18 +51,14 @@ DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
-	debug? ( dev-debug/valgrind )
-	dev-libs/libbson
-	dev-libs/mongo-c-driver"
+	debug? ( dev-debug/valgrind )"
 BDEPEND="
 	$(python_gen_any_dep '
-		>=dev-build/scons-3.1.1[${PYTHON_USEDEP}]
+		>=dev-build/scons-4.9.1[${PYTHON_USEDEP}]
 		dev-python/cheetah3[${PYTHON_USEDEP}]
 		dev-python/psutil[${PYTHON_USEDEP}]
-		dev-python/pymongo[${PYTHON_USEDEP}]
 		dev-python/pyyaml[${PYTHON_USEDEP}]
-		dev-python/regex[${PYTHON_USEDEP}]
-		dev-python/typing-extensions[${PYTHON_USEDEP}]
+		dev-python/pymongo[${PYTHON_USEDEP}]
 	')
 "
 PDEPEND="
@@ -70,26 +67,21 @@ PDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-4.4.29-no-enterprise.patch"
-	"${FILESDIR}/${PN}-5.0.2-no-compass.patch"
-	"${FILESDIR}/${PN}-5.0.2-skip-reqs-check.patch"
-	"${FILESDIR}/${PN}-7.0.1-sconstruct.patch"
-	"${FILESDIR}/${PN}-7.0.12-sconstruct-extrapatch.patch"
-	"${FILESDIR}/${PN}-7.0.12-boost-1.85.patch"
-	"${FILESDIR}/${PN}-7.0.12-boost-1.85-extra.patch"
-	"${FILESDIR}/${PN}-7.0.12-lto-without-gold-linker.patch"
-	"${FILESDIR}/${PN}-7.0.12-lto-without-object-model.patch"
-	"${FILESDIR}/${PN}-7.0.14-avx.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/mongodb-4.4.29-no-enterprise.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/mongodb-5.0.2-no-compass.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/mongodb-5.0.2-skip-reqs-check.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/mongodb-4.4.10-boost-1.81.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/extrapatch-sconstruct.patch"
+	"${WORKDIR}/mongodb-7.0.18-patches/mongodb-7.0.18-boost-1.85.patch"
+	"${FILESDIR}/mongodb-7.0.28-sconstruct.patch"
 )
 
 python_check_deps() {
-	python_has_version -b ">=dev-build/scons-3.1.1[${PYTHON_USEDEP}]" &&
+	python_has_version -b ">=dev-build/scons-4.9.1[${PYTHON_USEDEP}]" &&
 	python_has_version -b "dev-python/cheetah3[${PYTHON_USEDEP}]" &&
 	python_has_version -b "dev-python/psutil[${PYTHON_USEDEP}]" &&
-	python_has_version -b "dev-python/pymongo[${PYTHON_USEDEP}]" &&
 	python_has_version -b "dev-python/pyyaml[${PYTHON_USEDEP}]" &&
-	python_has_version -b "dev-python/regex[${PYTHON_USEDEP}]" &&
-	python_has_version -b "dev-python/typing-extensions[${PYTHON_USEDEP}]"
+	python_has_version -b "dev-python/pymongo[${PYTHON_USEDEP}]"
 }
 
 pkg_pretend() {
@@ -102,12 +94,12 @@ pkg_pretend() {
 	fi
 
 	if [[ -n ${REPLACING_VERSIONS} ]]; then
-		if ver_test "$REPLACING_VERSIONS" -lt 6.0; then
-			ewarn "To upgrade from a version earlier than the 6.0-series, you must"
+		if ver_replacing -lt 4.4; then
+			ewarn "To upgrade from a version earlier than the 4.4-series, you must"
 			ewarn "successively upgrade major releases until you have upgraded"
-			ewarn "to 6.0-series. Then upgrade to 7.0 series."
+			ewarn "to 4.4-series. Then upgrade to 5.0 series."
 		else
-			ewarn "Be sure to set featureCompatibilityVersion to 6.0 before upgrading."
+			ewarn "Be sure to set featureCompatibilityVersion to 4.4 before upgrading."
 		fi
 	fi
 }
@@ -116,7 +108,7 @@ src_prepare() {
 	default
 
 	# remove bundled libs
-	rm -r src/third_party/{boost,pcre2,snappy-*,yaml-cpp,zlib} || die
+	rm -r src/third_party/{boost,snappy-*,yaml-cpp} || die
 
 	# remove compass
 	rm -r src/mongo/installer/compass || die
@@ -130,9 +122,10 @@ src_configure() {
 		my_ccflags="${my_ccflags} -mno-avx -DDISABLE_AVX=1"
 	fi
 
-	# https://github.com/mongodb/mongo/wiki/Build-Mongodb-From-Source
+	# https://github.com/mongodb/mongo/blob/v7.0/docs/building.md
 	# --use-system-icu fails tests
 	# --use-system-tcmalloc is strongly NOT recommended:
+	# for MONGO_GIT_HASH use GitOrigin-RevId from the commit of the tag
 	scons_opts=(
 		AR="$(tc-getAR)"
 		CC="$(tc-getCC)"
@@ -143,13 +136,12 @@ src_configure() {
 		VERBOSE=1
 		VARIANT_DIR=gentoo
 		MONGO_VERSION="${PV}"
+		MONGO_GIT_HASH="cfc346c59d2cc3dbc903507fc642e22e3097f362"
 
-		--cxx-std=20
 		--disable-warnings-as-errors
 		--force-jobs # Reapply #906897, fix #935274
 		--jobs="$(makeopts_jobs)"
 		--use-system-boost
-		--use-system-pcre2
 		--use-system-snappy
 		--use-system-stemmer
 		--use-system-yaml
@@ -199,8 +191,8 @@ src_compile() {
 src_install() {
 	dobin build/install/bin/{mongo,mongod,mongos}
 
-	doman debian/mongo*.{1,5}
-	dodoc README.md docs/building.md
+	doman debian/mongo*.1
+	dodoc docs/building.md
 
 	newinitd "${FILESDIR}/${PN}.initd-r3" ${PN}
 	newconfd "${FILESDIR}/${PN}.confd-r3" ${PN}
@@ -208,23 +200,22 @@ src_install() {
 	newconfd "${FILESDIR}/mongos.confd-r3" mongos
 
 	insinto /etc
-	newins "${FILESDIR}/${PN}.conf-r4" ${PN}.conf
-	newins "${FILESDIR}/mongos.conf-r3" mongos.conf
+	newins "${FILESDIR}/${PN}.conf-r3" ${PN}.conf
+	newins "${FILESDIR}/mongos.conf-r2" mongos.conf
 
 	systemd_newunit "${FILESDIR}/${PN}.service-r1" "${PN}.service"
-
-	newtmpfiles "${FILESDIR}"/mongodb.tmpfiles mongodb.conf
 
 	insinto /etc/logrotate.d/
 	newins "${FILESDIR}/${PN}.logrotate" ${PN}
 
 	# see bug #526114
 	pax-mark emr "${ED}"/usr/bin/{mongo,mongod,mongos}
+
+	diropts -m0750 -o mongodb -g mongodb
+	keepdir /var/log/${PN}
 }
 
 pkg_postinst() {
-	tmpfiles_process mongodb.conf
-
 	ewarn "Make sure to read the release notes and follow the upgrade process:"
 	ewarn "  https://docs.mongodb.com/manual/release-notes/$(ver_cut 1-2)/"
 	ewarn "  https://docs.mongodb.com/manual/release-notes/$(ver_cut 1-2)/#upgrade-procedures"
