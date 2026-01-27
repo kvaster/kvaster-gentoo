@@ -184,6 +184,10 @@ src_configure() {
 		 scons_opts+=( --linker=bfd )
 	fi
 
+	if use amd64 && ! use cpu_flags_x86_avx; then
+		scons_opts+=( DISABLE_AVX=yes )
+	fi
+
 	# respect mongoDB upstream's basic recommendations
 	# see bug #536688 and #526114
 	#if ! use debug; then
