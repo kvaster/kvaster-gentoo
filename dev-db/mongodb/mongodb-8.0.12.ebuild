@@ -84,6 +84,7 @@ PATCHES=(
 	# removed in boost-1.89.0, unnecessary earlier
 	"${FILESDIR}/${PN}-8.0.12-boost-system.patch"
 	"${FILESDIR}/${PN}-8.0.12-gcc-15.patch"
+	"${FILESDIR}/${PN}-8.0.12-no-avx.patch"
 )
 
 python_check_deps() {
