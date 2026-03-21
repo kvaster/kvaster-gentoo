@@ -1,9 +1,9 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-POSTGRES_COMPAT=( 10 11 12 13 14 15 16 )
+POSTGRES_COMPAT=( 16 17 18 )
 POSTGRES_USEDEP="server"
 
 inherit autotools postgres-multi
