@@ -1,0 +1,18 @@
+Taken from AUR pkg for 6.7.80.0
+https://aur.archlinux.org/cgit/aur.git/tree/0005-Fix-folder-creation-crash.patch?h=epsonscan2
+---
+ src/CommonUtility/utils/PathUtils.cpp | 1 ---
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/CommonUtility/utils/PathUtils.cpp b/src/CommonUtility/utils/PathUtils.cpp
+index 7434d48..c748aea 100644
+--- a/src/CommonUtility/utils/PathUtils.cpp
++++ b/src/CommonUtility/utils/PathUtils.cpp
+@@ -606,7 +606,6 @@
+       else
+       {
+        bResult = TRUE;
+-       break;
+       }
+      }
+ #endif

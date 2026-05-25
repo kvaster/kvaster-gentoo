@@ -1,0 +1,14 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index c884d83..d82b463 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -26,7 +26,7 @@ add_subdirectory(ES2Command/Linux)
+ add_subdirectory(ES2FileFormat/Linux)
+ add_subdirectory(Controller)
+ add_subdirectory(SaneWrapper/Linux)
+-add_subdirectory(Standalone)
+-add_subdirectory(DetectAlert)
++#add_subdirectory(Standalone)
++#add_subdirectory(DetectAlert)
+ add_subdirectory(ScanSDK)
+ 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person" proxied="yes">
+		<email>marcin.deranek@slonko.net</email>
+		<name>Marcin Deranek</name>
+	</maintainer>
+	<longdescription lang="en">
+		This software provides applications to easily turn hard-copy documents
+		and imagery into formats that are more amenable to computer processing.
+		Included are a native driver for a number of EPSON scanners and a
+		compatibility driver to interface with software built around the SANE
+		standard.
+	</longdescription>
+</pkgmetadata>

@@ -1,0 +1,57 @@
+Clean-up of desktop files
+Gentoo ebuild QA will note that "Application" in desktop file is deprecated.
+Patch removes all such references in package supplied desktop files.
+---
+
+diff --git a/desktop/deb/i686/epsonscan2.desktop b/desktop/deb/i686/epsonscan2.desktop
+index 213e63a..c6985a1 100644
+--- a/desktop/deb/i686/epsonscan2.desktop
++++ b/desktop/deb/i686/epsonscan2.desktop
+@@ -1,7 +1,7 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+ Type=Application
+-Categories=Application;Graphics;RasterGraphics;Scanning;GTK;
++Categories=Graphics;RasterGraphics;Scanning;GTK;
+ 
+ Name=Epson Scan 2
+ GenericName=Epson Scan 2
+diff --git a/desktop/deb/x86_64/epsonscan2.desktop b/desktop/deb/x86_64/epsonscan2.desktop
+index a356d9d..696b4bb 100755
+--- a/desktop/deb/x86_64/epsonscan2.desktop
++++ b/desktop/deb/x86_64/epsonscan2.desktop
+@@ -1,7 +1,7 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+ Type=Application
+-Categories=Application;Graphics;RasterGraphics;Scanning;GTK;
++Categories=Graphics;RasterGraphics;Scanning;GTK;
+ 
+ Name=Epson Scan 2
+ GenericName=Epson Scan 2
+diff --git a/desktop/rpm/i686/epsonscan2.desktop b/desktop/rpm/i686/epsonscan2.desktop
+index 7434d48..c748aea 100644
+--- a/desktop/rpm/i686/epsonscan2.desktop
++++ b/desktop/rpm/i686/epsonscan2.desktop
+@@ -1,7 +1,7 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+ Type=Application
+-Categories=Application;Graphics;RasterGraphics;Scanning;GTK;
++Categories=Graphics;RasterGraphics;Scanning;GTK;
+ 
+ Name=Epson Scan 2
+ GenericName=Epson Scan 2
+diff --git a/desktop/rpm/x86_64/epsonscan2.desktop b/desktop/rpm/x86_64/epsonscan2.desktop
+index 79deb94..ea95bd0 100644
+--- a/desktop/rpm/x86_64/epsonscan2.desktop
++++ b/desktop/rpm/x86_64/epsonscan2.desktop
+@@ -1,7 +1,7 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+ Type=Application
+-Categories=Application;Graphics;RasterGraphics;Scanning;GTK;
++Categories=Graphics;RasterGraphics;Scanning;GTK;
+ 
+ Name=Epson Scan 2
+ GenericName=Epson Scan 2

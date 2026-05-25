@@ -1,4 +1,4 @@
-# Copyright 2022 Gentoo Authors
+# Copyright 2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,21 +7,18 @@ MY_PROG="${P}-1"
 
 DESCRIPTION="Epson scanner management utility"
 HOMEPAGE="https://support.epson.net/linux/en/epsonscan2.php"
-SRC_URI="https://download3.ebz.epson.net/dsc/f/03/00/14/53/67/1a6447b4acc5568dfd970feba0518fabea35bca2/${MY_PROG}.src.tar.gz"
+SRC_URI="https://download-center.epson.com/f/module/358e0044-a72e-4b37-a13e-642b176b4ce8/${MY_PROG}.src.tar.gz"
 S="${WORKDIR}/${MY_PROG}"
 
-inherit cmake desktop udev
+inherit cmake desktop flag-o-matic udev
 
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="bundled-libs"
 KEYWORDS="~amd64"
+IUSE="bundled-libs"
 
 DEPEND="
 	dev-libs/boost
-	dev-qt/qtcore:5
-	dev-qt/qtgui:5
-	dev-qt/qtwidgets:5
 	media-gfx/sane-backends
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng
@@ -29,16 +26,14 @@ DEPEND="
 	virtual/libusb:1
 	!bundled-libs? (
 		media-libs/libharu
-		sys-libs/zlib
+		virtual/zlib:=
 	)
 "
 RDEPEND="${DEPEND}"
-BDEPEND=""
 
-CMAKE_MAKEFILE_GENERATOR="emake"
-CMAKE_RUNTIME_OUTPUT_DIRECTORY="${S}/build"
-CMAKE_LIBRARY_OUTPUT_DIRECTORY="${S}/build"
-CMAKE_IN_SOURCE_BUILD="true"
+PATCHES=(
+	"${FILESDIR}/1000-remove-qt5.patch"
+)
 
 src_prepare() {
 	sed -i \
@@ -55,10 +50,17 @@ src_prepare() {
 			src/Controller/CMakeLists.txt || die
 	fi
 
-	sed -i \
-		-e "/CMAKE_RUNTIME_OUTPUT_DIRECTORY/d" \
-		-e "/CMAKE_LIBRARY_OUTPUT_DIRECTORY/d" \
-		CMakeLists.txt || die
+	# Boost 1.87 compatibility (BOOST_NO_CXX11_RVALUE_REFERENCES should be set by Boost)
+	find . -name CMakeLists.txt -exec sed -e '/add_definitions.*DBOOST_NO_CXX11_RVALUE_REFERENCES/d' -i {} \;
+	find . \( -name "*.h" -o -name "*.hpp" -o -name "*.cpp" \) \
+		-exec sed -e '/#define.*BOOST_NO_CXX11_RVALUE_REFERENCES/d' -i {} \;
+
+	# Fix compilation failure with GCC 15
+	append-cxxflags $(test-flags-CXX -Wno-template-body)
+	sed -i '/#include/ i #include <cmath>' 'src/Controller/Src/Filter/GrayToMono.hpp' || die
+
+	append-cxxflags -std=c++17
+	sed -i -e 's|return EPSON_OCR_INSTALL_PATH;|return "/usr/lib/epsonscan2-ocr/";|' src/Controller/Src/FileFormat/SearchablePDFPlugin.cpp || die "sed failed"
 
 	cmake_src_prepare
 }
