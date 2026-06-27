@@ -54,7 +54,6 @@ src_install() {
 	newins conf/sample.ini grafana.example.ini
 	newins conf/ldap.toml ldap.toml
 
-	dobin `(find bin -name grafana-cli)`
 	dobin `(find bin -name grafana)`
 
 	insinto "/usr/share/${PN}"
