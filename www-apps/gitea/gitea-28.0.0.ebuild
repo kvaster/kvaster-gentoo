@@ -80,6 +80,12 @@ src_compile() {
 	gitea_tags+="$(usex pam ',pam' '')"
 	gitea_tags+="$(usex sqlite ',sqlite,sqlite_unlock_notify' '')"
 
+	if use pam || use sqlite; then
+		export CGO_ENABLED=1
+		export CGO_CFLAGS="${CFLAGS}"
+		export CGO_LDFLAGS="${LDFLAGS}"
+	fi
+
 	gitea_settings=(
 		"-X code.gitea.io/gitea/modules/setting.CustomConf=${EPREFIX}/etc/gitea/app.ini"
 		"-X code.gitea.io/gitea/modules/setting.CustomPath=${EPREFIX}/var/lib/gitea/custom"
