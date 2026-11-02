@@ -29,10 +29,10 @@ DEPEND="
 	pam? ( sys-libs/pam )"
 RDEPEND="${DEPEND}
 	!gogit? ( dev-vcs/git )"
-BDEPEND=">=dev-lang/go-1.23:="
+BDEPEND=">=dev-lang/go-1.27:="
 
 DOCS=(
-	custom/conf/app.example.ini CHANGELOG.md CONTRIBUTING.md README.md
+	custom/conf/app.example.ini CONTRIBUTING.md README.md
 )
 FILECAPS=(
 	-m 711 cap_net_bind_service+ep usr/bin/gitea
